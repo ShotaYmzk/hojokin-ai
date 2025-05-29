@@ -4,6 +4,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+
 import { siteConfig } from "@/config/site";
 import { AppLogo } from "@/components/common/AppLogo";
 import { ThemeSwitch } from "@/components/common/ThemeSwitch";
@@ -11,8 +12,9 @@ import { ThemeSwitch } from "@/components/common/ThemeSwitch";
 // import { Avatar } from "@heroui/avatar"; // ユーザーアバター用
 
 // 仮のアイコンコンポーネント
-const IconPlaceholder = ({ className = "w-5 h-5" }: { className?: string }) => <div className={`bg-gray-300 rounded ${className}`}></div>;
-
+const IconPlaceholder = ({ className = "w-5 h-5" }: { className?: string }) => (
+  <div className={`bg-gray-300 rounded ${className}`} />
+);
 
 interface NavItem {
   label: string;
@@ -20,22 +22,21 @@ interface NavItem {
   icon?: React.ReactNode; // アイコン用のプロパティを追加
 }
 
-export default function AppLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true); // PCではデフォルトで開く
-  const [user, setUser] = useState<{ name: string; email: string } | null>(null);
+  const [user, setUser] = useState<{ name: string; email: string } | null>(
+    null,
+  );
 
   useEffect(() => {
     // 実際のアプリケーションでは認証状態をチェックし、未認証ならログインページへリダイレクト
-    const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    const storedUser = localStorage.getItem('user');
+    const loggedIn = localStorage.getItem("isLoggedIn") === "true";
+    const storedUser = localStorage.getItem("user");
+
     if (!loggedIn) {
-      router.push('/login');
+      router.push("/login");
     } else if (storedUser) {
       try {
         setUser(JSON.parse(storedUser));
@@ -48,30 +49,38 @@ export default function AppLayout({
     }
   }, [router]);
 
-
-  const appNavItems: NavItem[] = [ // siteConfigからナビゲーション項目を取得またはここで定義
+  const appNavItems: NavItem[] = [
+    // siteConfigからナビゲーション項目を取得またはここで定義
     { label: "ダッシュボード", href: "/dashboard", icon: <IconPlaceholder /> },
     { label: "企業情報", href: "/company", icon: <IconPlaceholder /> },
-    { label: "補助金検索", href: "/subsidies/search", icon: <IconPlaceholder /> },
-    { label: "AIマッチング", href: "/subsidies/matching-chat", icon: <IconPlaceholder /> },
+    {
+      label: "補助金検索",
+      href: "/subsidies/search",
+      icon: <IconPlaceholder />,
+    },
+    {
+      label: "AIマッチング",
+      href: "/subsidies/matching-chat",
+      icon: <IconPlaceholder />,
+    },
     { label: "書類作成", href: "/documents/create", icon: <IconPlaceholder /> },
     // { label: "設定", href: "/settings", icon: <IconPlaceholder /> },
   ];
 
   const handleLogout = () => {
-    localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('user');
-    localStorage.removeItem('authToken');
-    router.push('/login');
+    localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("user");
+    localStorage.removeItem("authToken");
+    router.push("/login");
   };
 
   if (!user) {
     // ユーザー情報が読み込まれるまでローディング表示など
     return (
-        <div className="flex items-center justify-center min-h-screen bg-background">
-            <p className="text-foreground">読み込み中...</p>
-            {/* ここにスピナーコンポーネントを配置 */}
-        </div>
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <p className="text-foreground">読み込み中...</p>
+        {/* ここにスピナーコンポーネントを配置 */}
+      </div>
     );
   }
 
@@ -86,13 +95,16 @@ export default function AppLayout({
         {isSidebarOpen && ( // スマホ表示でサイドバーが開いている時のみ中身を表示
           <>
             <div className="flex items-center justify-between mb-8">
-              <Link href="/dashboard" className="flex items-center gap-2">
-                <AppLogo size={32} className="text-primary" />
+              <Link className="flex items-center gap-2" href="/dashboard">
+                <AppLogo className="text-primary" size={32} />
                 <span className="font-bold text-xl text-foreground">
                   {siteConfig.name.split(" ")[0]} {/* アプリ名の一部 */}
                 </span>
               </Link>
-              <button onClick={() => setIsSidebarOpen(false)} className="md:hidden text-foreground-500 hover:text-foreground-700">
+              <button
+                className="md:hidden text-foreground-500 hover:text-foreground-700"
+                onClick={() => setIsSidebarOpen(false)}
+              >
                 <span className="text-2xl">✕</span> {/* 閉じるアイコン */}
               </button>
             </div>
@@ -101,13 +113,16 @@ export default function AppLayout({
                 {appNavItems.map((item) => (
                   <li key={item.href} className="mb-2">
                     <Link
-                      href={item.href}
                       className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors
                         ${
-                          pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href))
+                          pathname === item.href ||
+                          (item.href !== "/dashboard" &&
+                            pathname.startsWith(item.href))
                             ? "bg-primary text-primary-foreground font-semibold shadow-sm"
                             : "text-foreground-600 hover:bg-default-100 hover:text-foreground-800"
                         }`}
+                      href={item.href} // hrefをclassNameの後に移動 (react/jsx-sort-propsの可能性も考慮)
+                      // color={pathname === item.href ? "primary" : "foreground"} // もしHeroUIのLinkにcolorプロパティがある場合
                     >
                       {item.icon}
                       <span>{item.label}</span>
@@ -119,19 +134,25 @@ export default function AppLayout({
             <div className="mt-auto">
               <div className="flex items-center gap-3 p-3 rounded-lg bg-default-100 mb-4">
                 {/* <Avatar name={user?.name.charAt(0)} size="sm" /> */}
+                {/* もしAvatarコンポーネントがあり、プロパティが複数ある場合はアルファベット順にする */}
+                {/* 例: <Avatar altText="User Avatar" name={user?.name.charAt(0)} size="sm" /> */}
                 <div className="w-8 h-8 bg-secondary rounded-full flex items-center justify-center text-secondary-foreground font-semibold">
-                    {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+                  {user?.name?.charAt(0)?.toUpperCase() || "U"}
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-foreground-800">{user?.name || "ユーザー名"}</p>
-                  <p className="text-xs text-foreground-500">{user?.email || "user@example.com"}</p>
+                  <p className="text-sm font-medium text-foreground-800">
+                    {user?.name || "ユーザー名"}
+                  </p>
+                  <p className="text-xs text-foreground-500">
+                    {user?.email || "user@example.com"}
+                  </p>
                 </div>
               </div>
-              <button // HeroUIのButton推奨
-                onClick={handleLogout}
+              <button
                 className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-danger-600 hover:bg-danger-50 hover:text-danger-700 transition-colors border border-danger-300"
+                onClick={handleLogout} // onClickをclassNameの後に移動
               >
-                <IconPlaceholder className="w-5 h-5"/> {/* ログアウトアイコン */}
+                <IconPlaceholder className="w-5 h-5" />
                 <span>ログアウト</span>
               </button>
             </div>
@@ -143,11 +164,15 @@ export default function AppLayout({
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* モバイル用ヘッダー */}
         <header className="md:hidden bg-content1 border-b border-divider p-4 flex items-center justify-between sticky top-0 z-10">
-          <button onClick={() => setIsSidebarOpen(true)} className="text-foreground-600 hover:text-foreground-800">
-            <span className="text-2xl">☰</span> {/* ハンバーガーメニューアイコン */}
+          <button
+            className="text-foreground-600 hover:text-foreground-800"
+            onClick={() => setIsSidebarOpen(true)}
+          >
+            <span className="text-2xl">☰</span>{" "}
+            {/* ハンバーガーメニューアイコン */}
           </button>
-          <Link href="/dashboard" className="flex items-center gap-1.5">
-            <AppLogo size={28} className="text-primary" />
+          <Link className="flex items-center gap-1.5" href="/dashboard">
+            <AppLogo className="text-primary" size={28} />
             <span className="font-bold text-lg text-foreground">
               {siteConfig.name.split(" ")[0]}
             </span>
@@ -157,8 +182,8 @@ export default function AppLayout({
 
         {/* PC用ヘッダー (オプション) */}
         <header className="hidden md:flex bg-content1 border-b border-divider p-4 items-center justify-end sticky top-0 z-10">
-            {/* ここにパンくずリストやユーザーメニューなどを配置しても良い */}
-            <ThemeSwitch />
+          {/* ここにパンくずリストやユーザーメニューなどを配置しても良い */}
+          <ThemeSwitch />
         </header>
 
         <main className="flex-1 overflow-y-auto p-6 bg-default-50">

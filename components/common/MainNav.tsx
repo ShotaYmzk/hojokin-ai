@@ -32,16 +32,23 @@ export const MainNav = () => {
   // ここでは簡略化のため、認証済みなら navItems, 未認証なら authNavItems を使う例
   // 実際には (auth) レイアウトと (app) レイアウトで異なるナビゲーションを描画する方が良い場合もある
   const currentNavItems = isAuthenticated ? siteConfig.navItems : []; // (app) レイアウトで mainNavItems を使用
-  const currentMenuNavItems = isAuthenticated ? siteConfig.navMenuItems : siteConfig.authNavItems;
-
+  const currentMenuNavItems = isAuthenticated
+    ? siteConfig.navMenuItems
+    : siteConfig.authNavItems;
 
   return (
     <HeroUINavbar maxWidth="xl" position="sticky">
       <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
         <NavbarBrand as="li" className="gap-3 max-w-fit">
-          <NextLink className="flex justify-start items-center gap-2" href={isAuthenticated ? "/dashboard" : "/"}>
+          <NextLink
+            className="flex justify-start items-center gap-2"
+            href={isAuthenticated ? "/dashboard" : "/"}
+          >
             <AppLogo /> {/* AppLogo コンポーネントを使用 */}
-            <p className="font-bold text-inherit">{siteConfig.name.split(" ")[0]}</p> {/* "補助金・助成金アシスタントAI" から "補助金・助成金アシスタントAI" の部分だけなど */}
+            <p className="font-bold text-inherit">
+              {siteConfig.name.split(" ")[0]}
+            </p>{" "}
+            {/* "補助金・助成金アシスタントAI" から "補助金・助成金アシスタントAI" の部分だけなど */}
           </NextLink>
         </NavbarBrand>
         <ul className="hidden lg:flex gap-4 justify-start ml-2">
@@ -50,7 +57,7 @@ export const MainNav = () => {
               <NextLink
                 className={clsx(
                   "data-[active=true]:text-primary data-[active=true]:font-medium",
-                  "hover:text-primary transition-colors"
+                  "hover:text-primary transition-colors",
                 )}
                 color="foreground"
                 href={item.href}
@@ -78,24 +85,34 @@ export const MainNav = () => {
             {/* ユーザー名やログアウトボタンなどをここに配置 */}
             {/* 例: <Button as={Link} href="/profile">プロフィール</Button> */}
             <Button
-                as={NextLink}
-                href="/logout" // ログアウト処理へのパス
-                variant="ghost"
-                color="danger"
-              >
-                ログアウト
-              </Button>
+              as={NextLink}
+              color="danger"
+              href="/logout" // ログアウト処理へのパス
+              variant="ghost"
+            >
+              ログアウト
+            </Button>
           </NavbarItem>
         )}
         {!isAuthenticated && (
-             <NavbarItem className="hidden md:flex gap-2">
-                <Button as={NextLink} href="/login" variant="bordered" color="primary">
-                    ログイン
-                </Button>
-                <Button as={NextLink} href="/register" color="primary" variant="flat">
-                    新規登録
-                </Button>
-            </NavbarItem>
+          <NavbarItem className="hidden md:flex gap-2">
+            <Button
+              as={NextLink}
+              color="primary"
+              href="/login"
+              variant="bordered"
+            >
+              ログイン
+            </Button>
+            <Button
+              as={NextLink}
+              color="primary"
+              href="/register"
+              variant="flat"
+            >
+              新規登録
+            </Button>
+          </NavbarItem>
         )}
       </NavbarContent>
 
@@ -111,12 +128,15 @@ export const MainNav = () => {
         {/* searchInput は補助金検索ページなどに配置するため、ここでは削除 */}
         <div className="mx-4 mt-2 flex flex-col gap-2">
           {currentMenuNavItems.map((item, index) => (
-            <NavbarMenuItem key={`${item.href}-${index}`} isActive={pathname === item.href}>
+            <NavbarMenuItem
+              key={`${item.href}-${index}`}
+              isActive={pathname === item.href}
+            >
               <Link
+                as={NextLink} // NextLink を使用
                 color={pathname === item.href ? "primary" : "foreground"}
                 href={item.href}
                 size="lg"
-                as={NextLink} // NextLink を使用
               >
                 {item.label}
               </Link>

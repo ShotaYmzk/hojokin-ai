@@ -1,7 +1,7 @@
 // File: /app/(auth)/layout.tsx
-import React from 'react';
-import { AppLogo } from '@/components/common/AppLogo'; // ロゴを共通で表示する場合など
-import Link from 'next/link';
+import React from "react";
+
+// ロゴを共通で表示する場合など
 
 export default function AuthLayout({
   children,

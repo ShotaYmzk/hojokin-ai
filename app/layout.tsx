@@ -34,7 +34,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html suppressHydrationWarning lang="ja"> {/* lang="en" -> "ja" に変更 */}
+    <html suppressHydrationWarning lang="ja">
+      {" "}
+      {/* lang="en" -> "ja" に変更 */}
       <head />
       <body
         className={clsx(
@@ -50,7 +52,8 @@ export default function RootLayout({
             </main>
             <footer className="w-full flex items-center justify-center py-3">
               <p className="text-sm text-default-600">
-                © {new Date().getFullYear()} {siteConfig.name}. All rights reserved.
+                © {new Date().getFullYear()} {siteConfig.name}. All rights
+                reserved.
               </p>
               {/* <Link
                 isExternal

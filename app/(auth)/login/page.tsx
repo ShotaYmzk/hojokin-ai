@@ -6,17 +6,29 @@ import { useRouter } from "next/navigation"; // next/navigationからインポ�
 import { Input } from "@heroui/input"; // HeroUIのInputを使用
 import { Button } from "@heroui/button"; // HeroUIのButtonを使用
 import Link from "next/link"; // Next.jsのLinkコンポーネント
+
 import { AppLogo } from "@/components/common/AppLogo"; // 作成したAppLogoコンポーネント
 // import { Alert } from "@heroui/react"; // エラー表示用にAlertコンポーネントがあれば (なければ自作)
 // import { MailIcon, LockClosedIcon } from "@heroicons/react/24/outline"; // Heroiconsなどからアイコンをインポートする場合
 
 // 仮のAlertコンポーネント (HeroUIにAlertがなければ)
-const Alert: React.FC<{ color: "danger" | "success"; children: React.ReactNode; className?: string }> = ({ color, children, className }) => {
+const Alert: React.FC<{
+  color: "danger" | "success";
+  children: React.ReactNode;
+  className?: string;
+}> = ({ color, children, className }) => {
   const baseClasses = "p-4 rounded-md text-sm";
-  const colorClasses = color === "danger" ? "bg-danger-50 text-danger-700 border border-danger-200" : "bg-success-50 text-success-700 border border-success-200";
-  return <div className={`${baseClasses} ${colorClasses} ${className}`}>{children}</div>;
-};
+  const colorClasses =
+    color === "danger"
+      ? "bg-danger-50 text-danger-700 border border-danger-200"
+      : "bg-success-50 text-success-700 border border-success-200";
 
+  return (
+    <div className={`${baseClasses} ${colorClasses} ${className}`}>
+      {children}
+    </div>
+  );
+};
 
 export default function LoginPage() {
   const router = useRouter();
@@ -34,21 +46,26 @@ export default function LoginPage() {
     if (!email || !password) {
       setError("メールアドレスとパスワードを入力してください。");
       setIsLoading(false);
+
       return;
     }
 
     // ★デバッグ用ログイン
     if (email === "debuguser@example.com" && password === "password123") {
-      localStorage.setItem('isLoggedIn', 'true');
-      localStorage.setItem('user', JSON.stringify({
-        name: "デバッグ ユーザー",
-        email: "debuguser@example.com",
-        // 他に必要なユーザー情報があれば追加
-      }));
+      localStorage.setItem("isLoggedIn", "true");
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          name: "デバッグ ユーザー",
+          email: "debuguser@example.com",
+          // 他に必要なユーザー情報があれば追加
+        }),
+      );
       // ログイン成功後、1秒待ってからダッシュボードに遷移 (ローディング表示の確認用)
       setTimeout(() => {
-        router.push('/dashboard');
+        router.push("/dashboard");
       }, 1000);
+
       return; // 通常のAPIコールは行わない
     }
 
@@ -73,9 +90,10 @@ export default function LoginPage() {
       // setTimeout(() => {
       //   router.push('/dashboard');
       // }, 500);
-      setError("通常のログイン処理は未実装です。デバッグユーザーでログインしてください。");
+      setError(
+        "通常のログイン処理は未実装です。デバッグユーザーでログインしてください。",
+      );
       setIsLoading(false);
-
     } catch (err: any) {
       setError(err.message || "ログイン中にエラーが発生しました。");
       setIsLoading(false);
@@ -86,8 +104,8 @@ export default function LoginPage() {
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 px-4 py-12">
       <div className="w-full max-w-md p-8 space-y-6 bg-background shadow-2xl rounded-xl">
         <div className="flex flex-col items-center">
-          <Link href="/" className="mb-6">
-            <AppLogo size={48} className="text-primary" />
+          <Link className="mb-6" href="/">
+            <AppLogo className="text-primary" size={48} />
           </Link>
           <h1 className="text-3xl font-bold text-center text-foreground">
             ログイン
@@ -98,34 +116,28 @@ export default function LoginPage() {
         </div>
 
         {error && (
-          <Alert color="danger" className="mt-4">
+          <Alert className="mt-4" color="danger">
             {error}
           </Alert>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form className="space-y-6" onSubmit={handleSubmit}>
           <div>
             <Input
+              isRequired
               type="email"
               label="メールアドレス"
               labelPlacement="outside"
               placeholder="your@email.com"
               value={email}
-              onValueChange={setEmail} // HeroUIのInputはonValueChangeを使用
+              onValueChange={setEmail}
               disabled={isLoading}
-              isRequired
-              // startContent={
-              //   <MailIcon className="w-5 h-5 text-default-400 pointer-events-none flex-shrink-0" />
-              // }
-              classNames={{
-                label: "text-foreground-700",
-                inputWrapper: "bg-content2",
-              }}
             />
           </div>
 
           <div>
             <Input
+              isRequired
               type="password"
               label="パスワード"
               labelPlacement="outside"
@@ -133,14 +145,6 @@ export default function LoginPage() {
               value={password}
               onValueChange={setPassword}
               disabled={isLoading}
-              isRequired
-              // startContent={
-              //   <LockClosedIcon className="w-5 h-5 text-default-400 pointer-events-none flex-shrink-0" />
-              // }
-              classNames={{
-                label: "text-foreground-700",
-                inputWrapper: "bg-content2",
-              }}
             />
           </div>
 
@@ -151,20 +155,20 @@ export default function LoginPage() {
               </Checkbox>
             </div> */}
             <Link
-              href="/password-reset" // パスワードリセットページへのリンク
               className="text-sm font-medium text-primary hover:text-primary-focus"
+              href="/password-reset" // パスワードリセットページへのリンク
             >
               パスワードをお忘れですか？
             </Link>
           </div>
 
           <Button
-            type="submit"
+            fullWidth
+            className="font-semibold"
             color="primary"
             isLoading={isLoading}
-            fullWidth
             size="lg"
-            className="font-semibold"
+            type="submit"
           >
             {isLoading ? "ログイン処理中..." : "ログイン"}
           </Button>
@@ -173,8 +177,8 @@ export default function LoginPage() {
         <p className="mt-8 text-center text-sm text-foreground-500">
           アカウントをお持ちでないですか？{" "}
           <Link
-            href="/register" // 新規登録ページへのリンク
             className="font-medium text-primary hover:text-primary-focus"
+            href="/register" // 新規登録ページへのリンク
           >
             新規登録はこちら
           </Link>

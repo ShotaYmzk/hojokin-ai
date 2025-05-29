@@ -43,7 +43,8 @@ interface UploadedFiles {
   quotations: File | null;
 }
 
-const DocumentCreatePage: React.FC = () => { // コンポーネント名を変更
+const DocumentCreatePage: React.FC = () => {
+  // コンポーネント名を変更
   const [activeTab, setActiveTab] = useState<ActiveTab>("company");
   const [progress, setProgress] = useState(25);
   const [formData, setFormData] = useState<FormData>({
@@ -71,7 +72,9 @@ const DocumentCreatePage: React.FC = () => { // コンポーネント名を変�
     quotations: null,
   });
 
-  const fileInputRefs: { [K in keyof UploadedFiles]: React.RefObject<HTMLInputElement> } = {
+  const fileInputRefs: {
+    [K in keyof UploadedFiles]: React.RefObject<HTMLInputElement>;
+  } = {
     businessPlan: useRef<HTMLInputElement>(null),
     financialStatements: useRef<HTMLInputElement>(null),
     registrationCertificate: useRef<HTMLInputElement>(null),
@@ -84,6 +87,7 @@ const DocumentCreatePage: React.FC = () => { // コンポーネント名を変�
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
+
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -102,7 +106,8 @@ const DocumentCreatePage: React.FC = () => { // コンポーネント名を変�
     }
   };
 
-  const handleFileDelete = (fileType: keyof UploadedFiles) => { // stringから具体的なキーの型へ
+  const handleFileDelete = (fileType: keyof UploadedFiles) => {
+    // stringから具体的なキーの型へ
     setUploadedFiles((prev) => ({
       ...prev,
       [fileType]: null,
@@ -115,9 +120,15 @@ const DocumentCreatePage: React.FC = () => { // コンポーネント名を変�
   const handleTabChange = (tab: ActiveTab) => {
     setActiveTab(tab);
     switch (tab) {
-      case "company": setProgress(25); break;
-      case "business": setProgress(50); break;
-      case "finance": setProgress(75); break;
+      case "company":
+        setProgress(25);
+        break;
+      case "business":
+        setProgress(50);
+        break;
+      case "finance":
+        setProgress(75);
+        break;
     }
   };
 
@@ -139,6 +150,7 @@ const DocumentCreatePage: React.FC = () => { // コンポーネント名を変�
 
   const getFileName = (file: File | null): string => {
     if (!file) return "ファイルが選択されていません";
+
     return file.name.length > 20
       ? `${file.name.substring(0, 17)}...`
       : file.name;
@@ -147,6 +159,7 @@ const DocumentCreatePage: React.FC = () => { // コンポーネント名を変�
   const getFileSize = (file: File | null): string => {
     if (!file) return "";
     const sizeInKB = file.size / 1024;
+
     return sizeInKB < 1024
       ? `${Math.round(sizeInKB * 10) / 10}KB`
       : `${Math.round(sizeInKB / 102.4) / 10}MB`;
@@ -187,25 +200,29 @@ const DocumentCreatePage: React.FC = () => { // コンポーネント名を変�
             </span>
           </div>
           {/* <Progress value={progress} color="primary" size="sm" aria-label="申請進捗" /> */}
-           <div className="w-full bg-default-200 rounded-full h-2.5">
+          <div className="w-full bg-default-200 rounded-full h-2.5">
             <div
               className="bg-primary h-2.5 rounded-full transition-all duration-300"
               style={{ width: `${progress}%` }}
-            ></div>
+            />
           </div>
           <div className="flex justify-between text-xs text-foreground-500 mt-1">
-            <span className={progress >= 0 ? "text-primary font-medium" : ""}> {/* 0%からハイライト */}
+            <span className={progress >= 0 ? "text-primary font-medium" : ""}>
+              {" "}
+              {/* 0%からハイライト */}
               基本情報入力
             </span>
-            <span className={progress >= 34 ? "text-primary font-medium" : ""}> {/* 1/3 */}
+            <span className={progress >= 34 ? "text-primary font-medium" : ""}>
+              {" "}
+              {/* 1/3 */}
               事業計画入力
             </span>
-            <span className={progress >= 67 ? "text-primary font-medium" : ""}> {/* 2/3 */}
+            <span className={progress >= 67 ? "text-primary font-medium" : ""}>
+              {" "}
+              {/* 2/3 */}
               資金計画・書類
             </span>
-            <span
-              className={progress >= 100 ? "text-primary font-medium" : ""}
-            >
+            <span className={progress >= 100 ? "text-primary font-medium" : ""}>
               確認・提出
             </span>
           </div>
@@ -217,12 +234,16 @@ const DocumentCreatePage: React.FC = () => { // コンポーネント名を変�
         <div className="max-w-6xl mx-auto">
           {/* 補助金基本情報 (Cardコンポーネント推奨) */}
           <div className="bg-background rounded-lg shadow-sm p-6 mb-6 border border-divider">
-            <h2 className="text-xl font-semibold text-foreground-800 mb-4"> {/* サイズ調整 */}
+            <h2 className="text-xl font-semibold text-foreground-800 mb-4">
+              {" "}
+              {/* サイズ調整 */}
               申請対象の補助金
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="bg-primary-50 rounded-lg p-4 border border-primary-100">
-                <h3 className="text-lg font-medium text-primary-800 mb-2"> {/* サイズ調整 */}
+                <h3 className="text-lg font-medium text-primary-800 mb-2">
+                  {" "}
+                  {/* サイズ調整 */}
                   IT導入補助金2025 (サンプル)
                 </h3>
                 <p className="text-sm text-foreground-700 mb-3">
@@ -246,7 +267,9 @@ const DocumentCreatePage: React.FC = () => { // コンポーネント名を変�
                 </div>
               </div>
               <div className="bg-content2 rounded-lg p-4 border border-divider">
-                <h3 className="text-lg font-medium text-foreground-800 mb-2"> {/* サイズ調整 */}
+                <h3 className="text-lg font-medium text-foreground-800 mb-2">
+                  {" "}
+                  {/* サイズ調整 */}
                   申請のポイント
                 </h3>
                 <ul className="text-sm text-foreground-700 space-y-2">
@@ -284,68 +307,106 @@ const DocumentCreatePage: React.FC = () => { // コンポーネント名を変�
                     <Tab key="finance" title={<><span className="mr-2">💰</span>資金計画</>}>...</Tab>
                 </Tabs> */}
                 <div className="flex border-b border-divider">
-                  {(["company", "business", "finance"] as ActiveTab[]).map(tab => (
-                    <button
-                      key={tab}
-                      className={`flex-1 py-3 px-4 text-center font-medium text-sm transition-colors ${
-                        activeTab === tab
-                          ? "text-primary border-b-2 border-primary bg-primary-50"
-                          : "text-foreground-500 hover:text-foreground-700 hover:bg-default-100"
-                      }`}
-                      onClick={() => handleTabChange(tab)}
-                    >
-                      {/* <FontAwesomeIcon icon={tab === "company" ? faBuilding : tab === "business" ? faChartLine : faYenSign} className="mr-2" /> */}
-                      <span className="mr-2">{tab === "company" ? "🏢" : tab === "business" ? "📈" : "💰"}</span>
-                      {tab === "company" ? "会社情報" : tab === "business" ? "事業計画" : "資金計画"}
-                    </button>
-                  ))}
+                  {(["company", "business", "finance"] as ActiveTab[]).map(
+                    (tab) => (
+                      <button
+                        key={tab}
+                        className={`flex-1 py-3 px-4 text-center font-medium text-sm transition-colors ${
+                          activeTab === tab
+                            ? "text-primary border-b-2 border-primary bg-primary-50"
+                            : "text-foreground-500 hover:text-foreground-700 hover:bg-default-100"
+                        }`}
+                        onClick={() => handleTabChange(tab)}
+                      >
+                        {/* <FontAwesomeIcon icon={tab === "company" ? faBuilding : tab === "business" ? faChartLine : faYenSign} className="mr-2" /> */}
+                        <span className="mr-2">
+                          {tab === "company"
+                            ? "🏢"
+                            : tab === "business"
+                              ? "📈"
+                              : "💰"}
+                        </span>
+                        {tab === "company"
+                          ? "会社情報"
+                          : tab === "business"
+                            ? "事業計画"
+                            : "資金計画"}
+                      </button>
+                    ),
+                  )}
                 </div>
 
                 {/* タブコンテンツ */}
                 <div className="p-6">
                   {/* 会社情報タブ */}
                   {activeTab === "company" && (
-                    <div className="space-y-5 animate-fadeIn"> {/* フェードインアニメーション追加 */}
+                    <div className="space-y-5 animate-fadeIn">
+                      {" "}
+                      {/* フェードインアニメーション追加 */}
                       {/* InputフィールドはHeroUIのInputコンポーネントでラップすることを推奨 */}
                       {/* 例: <Input label="会社名" name="companyName" value={formData.companyName} onChange={handleInputChange} isRequired /> */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div>
-                          <label htmlFor="companyName" className="block text-sm font-medium text-foreground-700 mb-1">
+                          <label
+                            className="block text-sm font-medium text-foreground-700 mb-1"
+                            htmlFor="companyName"
+                          >
                             会社名 <span className="text-danger">*</span>
                           </label>
                           <input
-                            id="companyName" type="text" name="companyName" value={formData.companyName} onChange={handleInputChange}
-                            className="w-full border border-default-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary text-sm bg-content1" required
+                            required
+                            className="w-full border border-default-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary text-sm bg-content1"
+                            id="companyName"
+                            name="companyName"
+                            type="text"
+                            value={formData.companyName}
+                            onChange={handleInputChange}
                           />
                         </div>
                         <div>
-                          <label htmlFor="representativeName" className="block text-sm font-medium text-foreground-700 mb-1">
+                          <label
+                            className="block text-sm font-medium text-foreground-700 mb-1"
+                            htmlFor="representativeName"
+                          >
                             代表者名 <span className="text-danger">*</span>
                           </label>
                           <input
-                            id="representativeName" type="text" name="representativeName" value={formData.representativeName} onChange={handleInputChange}
-                            className="w-full border border-default-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary text-sm bg-content1" required
+                            required
+                            className="w-full border border-default-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary text-sm bg-content1"
+                            id="representativeName"
+                            name="representativeName"
+                            type="text"
+                            value={formData.representativeName}
+                            onChange={handleInputChange}
                           />
                         </div>
                       </div>
                       {/* ... 他の会社情報フィールドも同様にlabelのhtmlForとinputのidを紐付ける ... */}
-                       <div>
-                          <label htmlFor="postalCode" className="block text-sm font-medium text-foreground-700 mb-1">
-                            郵便番号 <span className="text-danger">*</span>
-                          </label>
-                          <div className="flex">
-                            <input
-                              id="postalCode" type="text" name="postalCode" value={formData.postalCode} onChange={handleInputChange}
-                              className="w-40 border border-default-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary text-sm bg-content1"
-                              placeholder="123-4567" required
-                            />
-                            <button className="ml-2 bg-default-200 hover:bg-default-300 text-foreground-700 px-3 py-2 rounded-md text-sm whitespace-nowrap cursor-pointer">
-                              <span className="mr-1">🔍</span>
-                              住所検索
-                            </button>
-                          </div>
+                      <div>
+                        <label
+                          className="block text-sm font-medium text-foreground-700 mb-1"
+                          htmlFor="postalCode"
+                        >
+                          郵便番号 <span className="text-danger">*</span>
+                        </label>
+                        <div className="flex">
+                          <input
+                            required
+                            className="w-40 border border-default-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary text-sm bg-content1"
+                            id="postalCode"
+                            name="postalCode"
+                            placeholder="123-4567"
+                            type="text"
+                            value={formData.postalCode}
+                            onChange={handleInputChange}
+                          />
+                          <button className="ml-2 bg-default-200 hover:bg-default-300 text-foreground-700 px-3 py-2 rounded-md text-sm whitespace-nowrap cursor-pointer">
+                            <span className="mr-1">🔍</span>
+                            住所検索
+                          </button>
                         </div>
-                        {/* ... 省略 (住所、電話番号、メールアドレス) ... */}
+                      </div>
+                      {/* ... 省略 (住所、電話番号、メールアドレス) ... */}
                     </div>
                   )}
 
@@ -354,13 +415,24 @@ const DocumentCreatePage: React.FC = () => { // コンポーネント名を変�
                     <div className="space-y-5 animate-fadeIn">
                       {/* TextareaもHeroUIのTextareaコンポーネント推奨 */}
                       {/* 例: <Textarea label="事業計画タイトル" name="businessTitle" ... /> */}
-                       <div>
-                        <label htmlFor="businessTitle" className="block text-sm font-medium text-foreground-700 mb-1">
-                          事業計画タイトル <span className="text-danger">*</span>
+                      <div>
+                        <label
+                          className="block text-sm font-medium text-foreground-700 mb-1"
+                          htmlFor="businessTitle"
+                        >
+                          事業計画タイトル{" "}
+                          <span className="text-danger">*</span>
                         </label>
-                        <input id="businessTitle" type="text" name="businessTitle" value={formData.businessTitle} onChange={handleInputChange}
+                        <input
+                          required
                           className="w-full border border-default-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary text-sm bg-content1"
-                          placeholder="例：クラウド基幹システム導入による業務効率化プロジェクト" required/>
+                          id="businessTitle"
+                          name="businessTitle"
+                          placeholder="例：クラウド基幹システム導入による業務効率化プロジェクト"
+                          type="text"
+                          value={formData.businessTitle}
+                          onChange={handleInputChange}
+                        />
                       </div>
                       {/* ... 省略 (事業概要、事業目的、期待される効果、実施期間) ... */}
                     </div>
@@ -369,30 +441,55 @@ const DocumentCreatePage: React.FC = () => { // コンポーネント名を変�
                   {/* 資金計画タブ */}
                   {activeTab === "finance" && (
                     <div className="space-y-5 animate-fadeIn">
-                       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                         <div>
-                          <label htmlFor="totalAmount" className="block text-sm font-medium text-foreground-700 mb-1">
+                          <label
+                            className="block text-sm font-medium text-foreground-700 mb-1"
+                            htmlFor="totalAmount"
+                          >
                             事業の総額 <span className="text-danger">*</span>
                           </label>
                           <div className="relative">
-                            <input id="totalAmount" type="text" name="totalAmount" value={formData.totalAmount} onChange={handleInputChange}
+                            <input
+                              required
                               className="w-full border border-default-300 rounded-lg pl-7 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary text-sm bg-content1"
-                              placeholder="1,000,000" required />
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground-500 text-sm">¥</span>
+                              id="totalAmount"
+                              name="totalAmount"
+                              placeholder="1,000,000"
+                              type="text"
+                              value={formData.totalAmount}
+                              onChange={handleInputChange}
+                            />
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground-500 text-sm">
+                              ¥
+                            </span>
                           </div>
                         </div>
                         {/* ... 省略 (自己資金額、補助金申請額) ... */}
                       </div>
                       <div>
-                        <label htmlFor="expenseBreakdown" className="block text-sm font-medium text-foreground-700 mb-1">
+                        <label
+                          className="block text-sm font-medium text-foreground-700 mb-1"
+                          htmlFor="expenseBreakdown"
+                        >
                           経費内訳 <span className="text-danger">*</span>
                         </label>
-                        <textarea id="expenseBreakdown" name="expenseBreakdown" value={formData.expenseBreakdown} onChange={handleInputChange} rows={5}
+                        <textarea
+                          required
                           className="w-full border border-default-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary text-sm bg-content1"
-                          placeholder={"例：\n・クラウドERP導入費：600,000円\n・システム設定費：300,000円\n・社員研修費：100,000円"} required
-                        ></textarea>
+                          id="expenseBreakdown"
+                          name="expenseBreakdown"
+                          placeholder={
+                            "例：\n・クラウドERP導入費：600,000円\n・システム設定費：300,000円\n・社員研修費：100,000円"
+                          }
+                          rows={5}
+                          value={formData.expenseBreakdown}
+                          onChange={handleInputChange}
+                        />
                       </div>
-                      <div className="bg-warning-50 border border-warning-200 rounded-lg p-4"> {/* HeroUIのWarningカラー */}
+                      <div className="bg-warning-50 border border-warning-200 rounded-lg p-4">
+                        {" "}
+                        {/* HeroUIのWarningカラー */}
                         <h4 className="text-sm font-medium text-warning-800 mb-2">
                           資金計画作成のポイント
                         </h4>
@@ -404,7 +501,9 @@ const DocumentCreatePage: React.FC = () => { // コンポーネント名を変�
                           ].map((point, i) => (
                             <li key={i} className="flex items-start">
                               {/* <FontAwesomeIcon icon={faInfoCircle} className="text-warning-600 mt-0.5 mr-1.5" /> */}
-                              <span className="text-warning-600 mr-1.5 mt-0.5">ℹ️</span>
+                              <span className="text-warning-600 mr-1.5 mt-0.5">
+                                ℹ️
+                              </span>
                               <span>{point}</span>
                             </li>
                           ))}
@@ -423,31 +522,38 @@ const DocumentCreatePage: React.FC = () => { // コンポーネント名を変�
                   添付書類アップロード
                 </h2>
                 <div className="space-y-5">
-                  {(Object.keys(uploadedFiles) as Array<keyof UploadedFiles>).map((fileKey) => {
+                  {(
+                    Object.keys(uploadedFiles) as Array<keyof UploadedFiles>
+                  ).map((fileKey) => {
                     const fileLabels: Record<keyof UploadedFiles, string> = {
-                        businessPlan: "事業計画書",
-                        financialStatements: "決算書（直近2期分）",
-                        registrationCertificate: "登記簿謄本",
-                        quotations: "見積書",
+                      businessPlan: "事業計画書",
+                      financialStatements: "決算書（直近2期分）",
+                      registrationCertificate: "登記簿謄本",
+                      quotations: "見積書",
                     };
-                    const acceptedFormats: Record<keyof UploadedFiles, string> = {
+                    const acceptedFormats: Record<keyof UploadedFiles, string> =
+                      {
                         businessPlan: "PDF・Word・Excel",
                         financialStatements: "PDF・Excel",
                         registrationCertificate: "PDF",
                         quotations: "PDF",
-                    };
-                     const acceptedMimeTypes: Record<keyof UploadedFiles, string> = {
-                        businessPlan: ".pdf,.doc,.docx,.xls,.xlsx",
-                        financialStatements: ".pdf,.xls,.xlsx",
-                        registrationCertificate: ".pdf",
-                        quotations: ".pdf",
+                      };
+                    const acceptedMimeTypes: Record<
+                      keyof UploadedFiles,
+                      string
+                    > = {
+                      businessPlan: ".pdf,.doc,.docx,.xls,.xlsx",
+                      financialStatements: ".pdf,.xls,.xlsx",
+                      registrationCertificate: ".pdf",
+                      quotations: ".pdf",
                     };
 
                     return (
                       <div key={fileKey}>
                         <div className="flex justify-between items-center mb-2">
                           <label className="text-sm font-medium text-foreground-700">
-                            {fileLabels[fileKey]} <span className="text-danger">*</span>
+                            {fileLabels[fileKey]}{" "}
+                            <span className="text-danger">*</span>
                           </label>
                           <span className="text-xs text-foreground-500">
                             {acceptedFormats[fileKey]}
@@ -458,9 +564,16 @@ const DocumentCreatePage: React.FC = () => { // コンポーネント名を変�
                             <div className="flex items-center justify-between">
                               <div className="flex items-center overflow-hidden">
                                 {/* <FontAwesomeIcon icon={uploadedFiles[fileKey]?.type.includes("pdf") ? faFilePdf : faFileExcel} className={`mr-2 text-xl ${uploadedFiles[fileKey]?.type.includes("pdf") ? "text-danger-500" : "text-success-500"}`} /> */}
-                                <span className={`mr-2 text-xl ${uploadedFiles[fileKey]?.type.includes("pdf") ? "text-danger-500" : "text-success-500"}`}>📄</span>
+                                <span
+                                  className={`mr-2 text-xl ${uploadedFiles[fileKey]?.type.includes("pdf") ? "text-danger-500" : "text-success-500"}`}
+                                >
+                                  📄
+                                </span>
                                 <div className="overflow-hidden">
-                                  <div className="text-sm font-medium text-foreground-800 truncate" title={uploadedFiles[fileKey]?.name}>
+                                  <div
+                                    className="text-sm font-medium text-foreground-800 truncate"
+                                    title={uploadedFiles[fileKey]?.name}
+                                  >
                                     {getFileName(uploadedFiles[fileKey])}
                                   </div>
                                   <div className="text-xs text-foreground-500">
@@ -469,30 +582,34 @@ const DocumentCreatePage: React.FC = () => { // コンポーネント名を変�
                                 </div>
                               </div>
                               <button
-                                onClick={() => handleFileDelete(fileKey)}
-                                className="text-foreground-400 hover:text-danger-500 cursor-pointer p-1 ml-2 flex-shrink-0"
                                 aria-label={`Delete ${fileLabels[fileKey]}`}
+                                className="text-foreground-400 hover:text-danger-500 cursor-pointer p-1 ml-2 flex-shrink-0"
+                                onClick={() => handleFileDelete(fileKey)}
                               >
                                 {/* <FontAwesomeIcon icon={faTimes} /> */}
                                 <span>✕</span>
                               </button>
                             </div>
                           ) : (
-                            <div className="text-center py-4 md:py-6"> {/* パディング調整 */}
+                            <div className="text-center py-4 md:py-6">
+                              {" "}
+                              {/* パディング調整 */}
                               <input
-                                type="file"
-                                id={String(fileKey)}
                                 ref={fileInputRefs[fileKey]}
-                                onChange={(e) => handleFileUpload(e, fileKey)}
-                                className="hidden"
                                 accept={acceptedMimeTypes[fileKey]}
+                                className="hidden"
+                                id={String(fileKey)}
+                                type="file"
+                                onChange={(e) => handleFileUpload(e, fileKey)}
                               />
                               <label
-                                htmlFor={String(fileKey)}
                                 className="cursor-pointer inline-flex flex-col items-center"
+                                htmlFor={String(fileKey)}
                               >
                                 {/* <FontAwesomeIcon icon={faCloudUploadAlt} className="text-primary text-2xl mb-2" /> */}
-                                <span className="text-primary text-3xl mb-1">☁️</span>
+                                <span className="text-primary text-3xl mb-1">
+                                  ☁️
+                                </span>
                                 <span className="text-sm text-primary font-medium">
                                   クリックしてアップロード
                                 </span>
@@ -517,8 +634,10 @@ const DocumentCreatePage: React.FC = () => { // コンポーネント名を変�
                         "ファイル名は内容がわかるように付けてください",
                       ].map((point, i) => (
                         <li key={i} className="flex items-start">
-                           <span className="text-primary-600 mr-1.5 mt-0.5">ℹ️</span>
-                           <span>{point}</span>
+                          <span className="text-primary-600 mr-1.5 mt-0.5">
+                            ℹ️
+                          </span>
+                          <span>{point}</span>
                         </li>
                       ))}
                     </ul>
@@ -531,8 +650,8 @@ const DocumentCreatePage: React.FC = () => { // コンポーネント名を変�
           {/* プレビューボタンと操作ボタン */}
           <div className="mt-8 flex flex-col md:flex-row justify-between items-center gap-4">
             <button // HeroUIのButton推奨
-              onClick={() => setShowPreview(true)}
               className="w-full md:w-auto bg-background border border-primary text-primary hover:bg-primary-50 font-medium py-3 px-6 rounded-md whitespace-nowrap cursor-pointer"
+              onClick={() => setShowPreview(true)}
             >
               {/* <FontAwesomeIcon icon={faEye} className="mr-2" /> */}
               <span className="mr-2">👁️</span>
@@ -540,16 +659,16 @@ const DocumentCreatePage: React.FC = () => { // コンポーネント名を変�
             </button>
             <div className="flex space-x-4 w-full md:w-auto">
               <button // HeroUIのButton推奨
-                onClick={handleSave}
                 className="flex-1 md:flex-none bg-default-200 hover:bg-default-300 text-foreground-700 font-medium py-3 px-8 rounded-md whitespace-nowrap cursor-pointer"
+                onClick={handleSave}
               >
                 {/* <FontAwesomeIcon icon={faSave} className="mr-2" /> */}
                 <span className="mr-2">💾</span>
                 一時保存
               </button>
               <button // HeroUIのButton推奨
-                onClick={handleSubmit}
                 className="flex-1 md:flex-none bg-primary hover:bg-primary-focus text-primary-foreground font-medium py-3 px-8 rounded-md whitespace-nowrap cursor-pointer"
+                onClick={handleSubmit}
               >
                 {/* <FontAwesomeIcon icon={faPaperPlane} className="mr-2" /> */}
                 <span className="mr-2">🚀</span>
@@ -578,91 +697,184 @@ const DocumentCreatePage: React.FC = () => { // コンポーネント名を変�
                 申請内容プレビュー
               </h2>
               <button
-                onClick={() => setShowPreview(false)}
-                className="text-foreground-500 hover:text-foreground-700 cursor-pointer p-1"
                 aria-label="閉じる"
+                className="text-foreground-500 hover:text-foreground-700 cursor-pointer p-1"
+                onClick={() => setShowPreview(false)}
               >
                 {/* <FontAwesomeIcon icon={faTimes} className="text-xl" /> */}
                 <span>✕</span>
               </button>
             </div>
             <div className="p-6 space-y-6 overflow-y-auto flex-1">
-                {/* 補助金情報 */}
-                <div>
-                    <h3 className="text-base font-semibold text-primary mb-3 pb-2 border-b border-primary-200">
-                    補助金情報
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                    <div><span className="text-foreground-500">補助金名：</span><span className="font-medium">IT導入補助金2025 (サンプル)</span></div>
-                    <div><span className="text-foreground-500">申請期限：</span><span className="font-medium">2025年6月30日</span></div>
-                    </div>
+              {/* 補助金情報 */}
+              <div>
+                <h3 className="text-base font-semibold text-primary mb-3 pb-2 border-b border-primary-200">
+                  補助金情報
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-foreground-500">補助金名：</span>
+                    <span className="font-medium">
+                      IT導入補助金2025 (サンプル)
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-foreground-500">申請期限：</span>
+                    <span className="font-medium">2025年6月30日</span>
+                  </div>
                 </div>
-                {/* 会社情報 */}
-                <div>
-                    <h3 className="text-base font-semibold text-primary mb-3 pb-2 border-b border-primary-200">
-                    会社情報
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                    {Object.entries({
-                        companyName: "会社名", representativeName: "代表者名", postalCode: "郵便番号",
-                        address: "住所", phoneNumber: "電話番号", email: "メールアドレス"
-                    }).map(([key, label]) => (
-                        <div key={key}><span className="text-foreground-500">{label}：</span><span className="font-medium">{formData[key as keyof FormData] || "未入力"}</span></div>
-                    ))}
+              </div>
+              {/* 会社情報 */}
+              <div>
+                <h3 className="text-base font-semibold text-primary mb-3 pb-2 border-b border-primary-200">
+                  会社情報
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                  {Object.entries({
+                    companyName: "会社名",
+                    representativeName: "代表者名",
+                    postalCode: "郵便番号",
+                    address: "住所",
+                    phoneNumber: "電話番号",
+                    email: "メールアドレス",
+                  }).map(([key, label]) => (
+                    <div key={key}>
+                      <span className="text-foreground-500">{label}：</span>
+                      <span className="font-medium">
+                        {formData[key as keyof FormData] || "未入力"}
+                      </span>
                     </div>
+                  ))}
                 </div>
-                 {/* 事業計画 */}
-                <div>
-                    <h3 className="text-base font-semibold text-primary mb-3 pb-2 border-b border-primary-200">事業計画</h3>
-                    <div className="space-y-3 text-sm">
-                        {(["businessTitle", "businessSummary", "businessGoal", "expectedResults", "implementationPeriod"] as Array<keyof FormData>).map(key => {
-                            const labels: Record<string, string> = {
-                                businessTitle: "事業計画タイトル", businessSummary: "事業概要", businessGoal: "事業目的",
-                                expectedResults: "期待される効果", implementationPeriod: "実施期間"
-                            };
-                            const isTextArea = ["businessSummary", "businessGoal", "expectedResults"].includes(key);
-                            return (
-                                <div key={key}>
-                                    <span className="text-foreground-500">{labels[key]}：</span>
-                                    {isTextArea ? (
-                                        <div className="bg-content2 p-3 rounded border border-divider mt-1 whitespace-pre-line">{formData[key] || "未入力"}</div>
-                                    ) : (
-                                        <span className="font-medium">{formData[key] || "未入力"}</span>
-                                    )}
-                                </div>
-                            );
-                        })}
-                    </div>
+              </div>
+              {/* 事業計画 */}
+              <div>
+                <h3 className="text-base font-semibold text-primary mb-3 pb-2 border-b border-primary-200">
+                  事業計画
+                </h3>
+                <div className="space-y-3 text-sm">
+                  {(
+                    [
+                      "businessTitle",
+                      "businessSummary",
+                      "businessGoal",
+                      "expectedResults",
+                      "implementationPeriod",
+                    ] as Array<keyof FormData>
+                  ).map((key) => {
+                    const labels: Record<string, string> = {
+                      businessTitle: "事業計画タイトル",
+                      businessSummary: "事業概要",
+                      businessGoal: "事業目的",
+                      expectedResults: "期待される効果",
+                      implementationPeriod: "実施期間",
+                    };
+                    const isTextArea = [
+                      "businessSummary",
+                      "businessGoal",
+                      "expectedResults",
+                    ].includes(key);
+
+                    return (
+                      <div key={key}>
+                        <span className="text-foreground-500">
+                          {labels[key]}：
+                        </span>
+                        {isTextArea ? (
+                          <div className="bg-content2 p-3 rounded border border-divider mt-1 whitespace-pre-line">
+                            {formData[key] || "未入力"}
+                          </div>
+                        ) : (
+                          <span className="font-medium">
+                            {formData[key] || "未入力"}
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
-                {/* 資金計画 */}
-                <div>
-                    <h3 className="text-base font-semibold text-primary mb-3 pb-2 border-b border-primary-200">資金計画</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-2 text-sm mb-3">
-                        {(["totalAmount", "selfFundingAmount", "subsidyRequestAmount"] as Array<keyof FormData>).map(key => {
-                            const labels: Record<string, string> = { totalAmount: "事業の総額", selfFundingAmount: "自己資金額", subsidyRequestAmount: "補助金申請額"};
-                            return <div key={key}><span className="text-foreground-500">{labels[key]}：</span><span className="font-medium">{formData[key] ? `¥${Number(formData[key]).toLocaleString()}` : "未入力"}</span></div>;
-                        })}
-                    </div>
-                    <div className="text-sm">
-                        <div className="text-foreground-500 mb-1">経費内訳：</div>
-                        <div className="bg-content2 p-3 rounded border border-divider whitespace-pre-line">{formData.expenseBreakdown || "未入力"}</div>
-                    </div>
+              </div>
+              {/* 資金計画 */}
+              <div>
+                <h3 className="text-base font-semibold text-primary mb-3 pb-2 border-b border-primary-200">
+                  資金計画
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-2 text-sm mb-3">
+                  {(
+                    [
+                      "totalAmount",
+                      "selfFundingAmount",
+                      "subsidyRequestAmount",
+                    ] as Array<keyof FormData>
+                  ).map((key) => {
+                    const labels: Record<string, string> = {
+                      totalAmount: "事業の総額",
+                      selfFundingAmount: "自己資金額",
+                      subsidyRequestAmount: "補助金申請額",
+                    };
+
+                    return (
+                      <div key={key}>
+                        <span className="text-foreground-500">
+                          {labels[key]}：
+                        </span>
+                        <span className="font-medium">
+                          {formData[key]
+                            ? `¥${Number(formData[key]).toLocaleString()}`
+                            : "未入力"}
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
-                {/* 添付書類 */}
-                <div>
-                    <h3 className="text-base font-semibold text-primary mb-3 pb-2 border-b border-primary-200">添付書類</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                    {(Object.keys(uploadedFiles) as Array<keyof UploadedFiles>).map(fileKey => (
-                        <div key={fileKey}><span className="text-foreground-500">{ ({businessPlan: "事業計画書", financialStatements: "決算書", registrationCertificate: "登記簿謄本", quotations: "見積書"})[fileKey] }：</span>
-                        <span className={uploadedFiles[fileKey] ? "font-medium text-success" : "text-danger"}>{uploadedFiles[fileKey] ? `アップロード済み (${getFileName(uploadedFiles[fileKey])})` : "未アップロード"}</span></div>
-                    ))}
-                    </div>
+                <div className="text-sm">
+                  <div className="text-foreground-500 mb-1">経費内訳：</div>
+                  <div className="bg-content2 p-3 rounded border border-divider whitespace-pre-line">
+                    {formData.expenseBreakdown || "未入力"}
+                  </div>
                 </div>
+              </div>
+              {/* 添付書類 */}
+              <div>
+                <h3 className="text-base font-semibold text-primary mb-3 pb-2 border-b border-primary-200">
+                  添付書類
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                  {(
+                    Object.keys(uploadedFiles) as Array<keyof UploadedFiles>
+                  ).map((fileKey) => (
+                    <div key={fileKey}>
+                      <span className="text-foreground-500">
+                        {
+                          {
+                            businessPlan: "事業計画書",
+                            financialStatements: "決算書",
+                            registrationCertificate: "登記簿謄本",
+                            quotations: "見積書",
+                          }[fileKey]
+                        }
+                        ：
+                      </span>
+                      <span
+                        className={
+                          uploadedFiles[fileKey]
+                            ? "font-medium text-success"
+                            : "text-danger"
+                        }
+                      >
+                        {uploadedFiles[fileKey]
+                          ? `アップロード済み (${getFileName(uploadedFiles[fileKey])})`
+                          : "未アップロード"}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
             <div className="border-t border-divider p-4 flex justify-end bg-content2">
               <button // HeroUIのButton推奨
-                onClick={() => setShowPreview(false)}
                 className="bg-primary hover:bg-primary-focus text-primary-foreground font-medium py-2 px-6 rounded-md whitespace-nowrap cursor-pointer"
+                onClick={() => setShowPreview(false)}
               >
                 閉じる
               </button>

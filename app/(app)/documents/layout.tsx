@@ -1,5 +1,5 @@
 // File: /app/(app)/documents/layout.tsx
-import React from 'react';
+import React from "react";
 
 export default function DocumentsLayout({
   children,
@@ -8,8 +8,6 @@ export default function DocumentsLayout({
 }) {
   return (
     // 書類関連ページに特有のラッパーやコンテキストプロバイダーなどをここに配置可能
-    <div className="documents-section">
-      {children}
-    </div>
+    <div className="documents-section">{children}</div>
   );
 }

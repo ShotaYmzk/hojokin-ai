@@ -1,7 +1,7 @@
 // File: /app/page.tsx
 import { Link } from "@heroui/link";
 import { button as buttonStyles } from "@heroui/theme";
-import { siteConfig } from "@/config/site";
+
 import { title, subtitle } from "@/components/primitives"; // primitives.ts があればそのまま利用
 // import { AppLogo } from "@/components/common/AppLogo"; // ロゴコンポーネントを作成した場合
 
@@ -25,23 +25,23 @@ export default function HomePage() {
 
       <div className="flex gap-4 mt-4">
         <Link
-          href="/register"
           className={buttonStyles({
             color: "primary",
             radius: "full",
             variant: "shadow",
             size: "lg",
           })}
+          href="/register"
         >
           無料で始める
         </Link>
         <Link
-          href="/login"
           className={buttonStyles({
             variant: "bordered",
             radius: "full",
             size: "lg",
           })}
+          href="/login"
         >
           ログイン
         </Link>

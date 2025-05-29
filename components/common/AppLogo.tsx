@@ -1,5 +1,6 @@
 // File: /components/common/AppLogo.tsx
 import * as React from "react";
+
 import { IconSvgProps } from "@/types"; // 型定義をインポート
 
 export const AppLogo: React.FC<IconSvgProps> = ({
@@ -10,11 +11,11 @@ export const AppLogo: React.FC<IconSvgProps> = ({
   ...props
 }) => (
   <svg
+    className={className} // classNameを適用
     fill="none"
     height={size || height}
     viewBox="0 0 32 32" // このViewBoxは既存のLogoに依存します
     width={size || width}
-    className={className} // classNameを適用
     {...props}
   >
     {/* 既存のLogoコンポーネントのpathデータをここに記述 */}
