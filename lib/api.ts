@@ -1,36 +1,57 @@
-// lib/api.ts (例)
-import axios from 'axios';
+// File: ./lib/api.ts
+import axios from "axios";
 
-type LoginCredentials = {
-  email: string;
-  password: string;
-};
+interface LoginCredentials {
+  email?: string; // 仮の型、実際には適切な型定義を
+  password?: string;
+}
 
 const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || '/api', // 環境変数からAPIのベースURLを取得
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || "/api",
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
 // トークンなどをヘッダーに付与する場合のインターセプター設定 (例)
-apiClient.interceptors.request.use(config => {
-  const token = localStorage.getItem('authToken'); // 仮。実際にはよりセキュアな方法で管理
+apiClient.interceptors.request.use((config) => {
+  const token = localStorage.getItem("authToken"); // 仮。実際にはよりセキュアな方法で管理
+
   if (token) {
     config.headers = config.headers || {};
     config.headers.Authorization = `Bearer ${token}`;
   }
+
   return config;
 });
 
 export const loginUser = async (credentials: LoginCredentials) => {
   try {
-    const response = await apiClient.post('/auth/login', credentials);
+    const response = await apiClient.post("/auth/login", credentials);
+
     return response.data;
   } catch (error) {
-    // エラーハンドリング (後述)
+    // エラーハンドリング
     throw error;
   }
 };
 
 // 他のAPI関数 (getProfile, getSubsidies, etc.)
+// 例:
+// export const getCompanyProfile = async () => {
+//   try {
+//     const response = await apiClient.get("/company/profile");
+//     return response.data;
+//   } catch (error) {
+//     throw error;
+//   }
+// };
+
+// export const searchSubsidies = async (params: any) => { // paramsの型は適切に定義
+//   try {
+//     const response = await apiClient.get("/subsidies", { params });
+//     return response.data;
+//   } catch (error) {
+//     throw error;
+//   }
+// };

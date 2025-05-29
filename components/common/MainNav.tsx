@@ -113,11 +113,7 @@ export const MainNav = () => {
           {currentMenuNavItems.map((item, index) => (
             <NavbarMenuItem key={`${item.href}-${index}`} isActive={pathname === item.href}>
               <Link
-                color={
-                  pathname === item.href
-                    ? "primary"
-                    : "foreground"
-                }
+                color={pathname === item.href ? "primary" : "foreground"}
                 href={item.href}
                 size="lg"
                 as={NextLink} // NextLink を使用
