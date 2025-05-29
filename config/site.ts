@@ -1,69 +1,49 @@
+// File: /config/site.ts
 export type SiteConfig = typeof siteConfig;
 
 export const siteConfig = {
-  name: "Next.js + HeroUI",
-  description: "Make beautiful websites regardless of your design experience.",
-  navItems: [
+  name: "補助金・助成金アシスタントAI", // アプリケーション名に変更
+  description: "AIが最適な補助金・助成金を推薦し、申請書類作成を支援します。", // アプリケーションの説明に変更
+  navItems: [ // 認証後ユーザー向けのナビゲーション項目（主に (app)/layout.tsx で使用）
     {
-      label: "Home",
-      href: "/",
-    },
-    {
-      label: "Docs",
-      href: "/docs",
-    },
-    {
-      label: "Pricing",
-      href: "/pricing",
-    },
-    {
-      label: "Blog",
-      href: "/blog",
-    },
-    {
-      label: "About",
-      href: "/about",
-    },
-  ],
-  navMenuItems: [
-    {
-      label: "Profile",
-      href: "/profile",
-    },
-    {
-      label: "Dashboard",
+      label: "ダッシュボード",
       href: "/dashboard",
     },
     {
-      label: "Projects",
-      href: "/projects",
+      label: "企業情報",
+      href: "/company",
     },
     {
-      label: "Team",
-      href: "/team",
+      label: "補助金検索",
+      href: "/subsidies/search",
+    },
+    // { // 必要に応じて書類作成ページへのリンクも
+    //   label: "書類作成",
+    //   href: "/documents/generate",
+    // },
+  ],
+  navMenuItems: [ // スマホ表示時のハンバーガーメニュー項目 (認証後)
+    { label: "ダッシュボード", href: "/dashboard" },
+    { label: "企業情報", href: "/company" },
+    { label: "補助金検索", href: "/subsidies/search" },
+    // { label: "書類作成", href: "/documents/generate" },
+    { label: "設定", href: "/settings" }, // 例: 設定ページ
+    { label: "ログアウト", href: "/logout" }, // ログアウト処理への導線
+  ],
+  authNavItems: [ // 認証前ユーザー向けのナビゲーション項目 (主に (auth)/layout.tsx やランディングページで使用)
+    {
+      label: "ログイン",
+      href: "/login",
     },
     {
-      label: "Calendar",
-      href: "/calendar",
-    },
-    {
-      label: "Settings",
-      href: "/settings",
-    },
-    {
-      label: "Help & Feedback",
-      href: "/help-feedback",
-    },
-    {
-      label: "Logout",
-      href: "/logout",
+      label: "新規登録",
+      href: "/register",
     },
   ],
-  links: {
-    github: "https://github.com/heroui-inc/heroui",
-    twitter: "https://twitter.com/hero_ui",
-    docs: "https://heroui.com",
-    discord: "https://discord.gg/9b6yyZKmH4",
-    sponsor: "https://patreon.com/jrgarciadev",
+  links: { // 外部リンクは必要に応じて更新
+    github: "", // プロジェクトのGitHubリポジトリがあれば
+    // twitter: "",
+    // discord: "",
+    // sponsor: "",
   },
 };
