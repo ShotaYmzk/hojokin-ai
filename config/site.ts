@@ -46,8 +46,8 @@ export const siteConfig = {
   links: {
     // 外部リンクは必要に応じて更新
     github: "", // プロジェクトのGitHubリポジトリがあれば
-    // twitter: "",
-    // discord: "",
-    // sponsor: "",
+    twitter: "",
+    discord: "",
+    sponsor: "",
   },
 };
