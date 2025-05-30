@@ -406,9 +406,7 @@ export default function SubsidySearchPage() {
       </header>
 
       {/* 検索フィルターフォーム */}
-      <Card className="sticky top-16 z-10 backdrop-blur-md bg-background/70">
-        {" "}
-        {/* スクロール追従 */}
+      <Card>
         <form onSubmit={performSearch}>
           <CardBody className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
             <Input

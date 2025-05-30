@@ -8,7 +8,7 @@ import { Providers } from "./providers";
 
 import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
-import { MainNav } from "@/components/common/MainNav"; // ★変更: Navbar -> MainNav, パスも変更
+//import { MainNav } from "@/components/common/MainNav"; // ★変更: Navbar -> MainNav, パスも変更
 
 export const metadata: Metadata = {
   title: {
@@ -46,7 +46,7 @@ export default function RootLayout({
       >
         <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
           <div className="relative flex flex-col h-screen">
-            <MainNav /> {/* ★変更: Navbar -> MainNav */}
+            {/* <MainNav /> {/* ★変更: Navbar -> MainNav */}
             <main className="container mx-auto max-w-7xl pt-16 px-6 flex-grow">
               {children}
             </main>

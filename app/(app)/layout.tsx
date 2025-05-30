@@ -25,7 +25,7 @@ interface NavItem {
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true); // PCではデフォルトで開く
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // モバイルではデフォルトで閉じる、PCではCSSで制御
   const [user, setUser] = useState<{ name: string; email: string } | null>(
     null,
   );
@@ -88,103 +88,79 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     <div className="flex h-screen bg-background text-foreground">
       {/* サイドバー */}
       <aside
-        className={`bg-content1 border-r border-divider transition-all duration-300 ease-in-out ${
-          isSidebarOpen ? "w-64 p-4" : "w-0 p-0 overflow-hidden"
-        } md:w-64 md:p-4 flex flex-col fixed md:static h-full z-20 md:z-auto`}
+        className={`bg-content1 border-r border-divider transition-transform duration-300 ease-in-out fixed md:static md:translate-x-0 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} w-64 p-4 flex flex-col h-full z-20`}
       >
-        {isSidebarOpen && ( // スマホ表示でサイドバーが開いている時のみ中身を表示
-          <>
-            <div className="flex items-center justify-between mb-8">
-              <Link className="flex items-center gap-2" href="/dashboard">
-                <AppLogo className="text-primary" size={32} />
-                <span className="font-bold text-xl text-foreground">
-                  {siteConfig.name.split(" ")[0]} {/* アプリ名の一部 */}
-                </span>
-              </Link>
-              <button
-                className="md:hidden text-foreground-500 hover:text-foreground-700"
-                onClick={() => setIsSidebarOpen(false)}
-              >
-                <span className="text-2xl">✕</span> {/* 閉じるアイコン */}
-              </button>
+        {/* サイドバーの内容は常にレンダリングし、表示/非表示はCSSのtransformで制御 */}
+        <>
+          <div className="flex items-center justify-between mb-8">
+            <Link href="/dashboard" className="flex items-center gap-2">
+              <AppLogo size={32} className="text-primary" />
+              <span className="font-bold text-xl text-foreground">
+                {siteConfig.name.split(" ")[0]}
+              </span>
+            </Link>
+            <button onClick={() => setIsSidebarOpen(false)} className="md:hidden text-foreground-500 hover:text-foreground-700">
+              <span className="text-2xl">✕</span>
+            </button>
+          </div>
+          <nav className="flex-grow">
+            <ul>
+              {appNavItems.map((item) => (
+                <li key={item.href} className="mb-2">
+                  <Link
+                    href={item.href}
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors
+                      ${
+                        pathname === item.href ||
+                        (item.href !== "/dashboard" &&
+                          pathname.startsWith(item.href))
+                          ? "bg-primary text-primary-foreground font-semibold shadow-sm"
+                          : "text-foreground-600 hover:bg-default-100 hover:text-foreground-800"
+                      }`}
+                  >
+                    {item.icon}
+                    <span>{item.label}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+          <div className="mt-auto">
+            <div className="mb-4 flex justify-start">
+              <ThemeSwitch />
             </div>
-            <nav className="flex-grow">
-              <ul>
-                {appNavItems.map((item) => (
-                  <li key={item.href} className="mb-2">
-                    <Link
-                      className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors
-                        ${
-                          pathname === item.href ||
-                          (item.href !== "/dashboard" &&
-                            pathname.startsWith(item.href))
-                            ? "bg-primary text-primary-foreground font-semibold shadow-sm"
-                            : "text-foreground-600 hover:bg-default-100 hover:text-foreground-800"
-                        }`}
-                      href={item.href} // hrefをclassNameの後に移動 (react/jsx-sort-propsの可能性も考慮)
-                      // color={pathname === item.href ? "primary" : "foreground"} // もしHeroUIのLinkにcolorプロパティがある場合
-                    >
-                      {item.icon}
-                      <span>{item.label}</span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-            <div className="mt-auto">
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-default-100 mb-4">
-                {/* <Avatar name={user?.name.charAt(0)} size="sm" /> */}
-                {/* もしAvatarコンポーネントがあり、プロパティが複数ある場合はアルファベット順にする */}
-                {/* 例: <Avatar altText="User Avatar" name={user?.name.charAt(0)} size="sm" /> */}
-                <div className="w-8 h-8 bg-secondary rounded-full flex items-center justify-center text-secondary-foreground font-semibold">
-                  {user?.name?.charAt(0)?.toUpperCase() || "U"}
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-foreground-800">
-                    {user?.name || "ユーザー名"}
-                  </p>
-                  <p className="text-xs text-foreground-500">
-                    {user?.email || "user@example.com"}
-                  </p>
-                </div>
+            <div className="flex items-center gap-3 p-3 rounded-lg bg-default-100 mb-4">
+              <div className="w-8 h-8 bg-secondary rounded-full flex items-center justify-center text-secondary-foreground font-semibold">
+                {user?.name?.charAt(0)?.toUpperCase() || "U"}
               </div>
-              <button
-                className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-danger-600 hover:bg-danger-50 hover:text-danger-700 transition-colors border border-danger-300"
-                onClick={handleLogout} // onClickをclassNameの後に移動
-              >
-                <IconPlaceholder className="w-5 h-5" />
-                <span>ログアウト</span>
-              </button>
+              <div>
+                <p className="text-sm font-medium text-foreground-800">
+                  {user?.name || "ユーザー名"}
+                </p>
+                <p className="text-xs text-foreground-500">
+                  {user?.email || "user@example.com"}
+                </p>
+              </div>
             </div>
-          </>
-        )}
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-danger-600 hover:bg-danger-50 hover:text-danger-700 transition-colors border border-danger-300"
+            >
+              <IconPlaceholder className="w-5 h-5" />
+              <span>ログアウト</span>
+            </button>
+          </div>
+        </>
       </aside>
 
-      {/* メインコンテンツエリア */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* モバイル用ヘッダー */}
-        <header className="md:hidden bg-content1 border-b border-divider p-4 flex items-center justify-between sticky top-0 z-10">
-          <button
-            className="text-foreground-600 hover:text-foreground-800"
-            onClick={() => setIsSidebarOpen(true)}
-          >
-            <span className="text-2xl">☰</span>{" "}
-            {/* ハンバーガーメニューアイコン */}
-          </button>
-          <Link className="flex items-center gap-1.5" href="/dashboard">
-            <AppLogo className="text-primary" size={28} />
-            <span className="font-bold text-lg text-foreground">
-              {siteConfig.name.split(" ")[0]}
-            </span>
-          </Link>
-          <ThemeSwitch />
-        </header>
-
-        {/* PC用ヘッダー (オプション) */}
-        <header className="hidden md:flex bg-content1 border-b border-divider p-4 items-center justify-end sticky top-0 z-10">
-          {/* ここにパンくずリストやユーザーメニューなどを配置しても良い */}
-          <ThemeSwitch />
-        </header>
+      <div className="flex-1 flex flex-col overflow-hidden relative">
+        {isSidebarOpen && (
+          <div
+            className="fixed inset-0 bg-black/30 z-10 md:hidden"
+            onClick={() => setIsSidebarOpen(false)}
+            aria-hidden="true"
+          />
+        )}
 
         <main className="flex-1 overflow-y-auto p-6 bg-default-50">
           {children}
