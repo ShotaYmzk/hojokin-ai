@@ -1,0 +1,495 @@
+openapi: 3.0.3
+info:
+  title: Subsidy Automation API
+  version: "0.1.0"
+  description: |
+    API for the 補助金AI platform. Covers authentication, company profiles,
+    subsidy search & matching, AI‐generated document drafts, application
+    submission, and progress tracking.
+servers:
+  - url: https://api.example.com/v1
+    description: Production
+  - url: http://localhost:8080/api
+    description: Local development
+
+tags:
+  - name: Auth
+    description: User authentication & registration
+  - name: Company
+    description: Company profile management
+  - name: Subsidies
+    description: Subsidy catalogue, search & matching
+  - name: AI
+    description: AI‑generated outputs (document drafts, etc.)
+  - name: Applications
+    description: Application creation & tracking
+
+paths:
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Login and receive JWT token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            examples:
+              default:
+                value:
+                  email: user@example.com
+                  password: secret123
+      responses:
+        "200":
+          description: Logged‑in user and token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+              examples:
+                default:
+                  value:
+                    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                    user:
+                      id: 42
+                      name: デバッグ ユーザー
+                      email: user@example.com
+        "401":
+          description: Invalid credentials
+
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Register new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+            examples:
+              default:
+                value:
+                  name: 新規ユーザー
+                  email: new@example.com
+                  password: secret1234
+      responses:
+        "201":
+          description: Created user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisterResponse'
+
+  /company/profile:
+    get:
+      tags: [Company]
+      summary: Get current company profile
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Company profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompanyProfile'
+    put:
+      tags: [Company]
+      summary: Update company profile
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompanyProfile'
+      responses:
+        "200":
+          description: Updated profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompanyProfile'
+
+  /subsidies:
+    get:
+      tags: [Subsidies]
+      summary: Search subsidies
+      parameters:
+        - in: query
+          name: keyword
+          schema:
+            type: string
+        - in: query
+          name: industry
+          schema:
+            type: string
+        - in: query
+          name: region
+          schema:
+            type: string
+        - in: query
+          name: purpose
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: true
+        - in: query
+          name: minAmount
+          schema:
+            type: integer
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: Paginated subsidy list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubsidySearchResponse'
+
+  /subsidies/{id}:
+    get:
+      tags: [Subsidies]
+      summary: Get subsidy details
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Subsidy details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subsidy'
+        "404":
+          description: Not found
+
+  /subsidies/match:
+    post:
+      tags: [Subsidies]
+      summary: Match company profile against subsidies
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompanyProfile'
+      responses:
+        "200":
+          description: Ranked subsidy matches
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SubsidyMatch'
+
+  /ai/generate-document-draft:
+    post:
+      tags: [AI]
+      summary: Generate AI draft for specified subsidy sections
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DocumentDraftRequest'
+      responses:
+        "200":
+          description: Draft sections
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GeneratedSection'
+
+  /applications:
+    post:
+      tags: [Applications]
+      summary: Submit new application
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationCreateRequest'
+      responses:
+        "201":
+          description: Created application
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Application'
+    get:
+      tags: [Applications]
+      summary: List applications for current user
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Application list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Application'
+
+  /applications/{id}:
+    get:
+      tags: [Applications]
+      summary: Get application details
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Application detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Application'
+        "404":
+          description: Not found
+    put:
+      tags: [Applications]
+      summary: Update application (e.g., status/progress)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationUpdateRequest'
+      responses:
+        "200":
+          description: Updated application
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Application'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+    LoginResponse:
+      type: object
+      required: [token, user]
+      properties:
+        token:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+    RegisterRequest:
+      allOf:
+        - $ref: '#/components/schemas/UserCreate'
+    RegisterResponse:
+      $ref: '#/components/schemas/User'
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+      required: [id, name, email]
+    UserCreate:
+      type: object
+      required: [name, email, password]
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+
+    CompanyProfile:
+      type: object
+      required: [companyName, industry, representativeName]
+      properties:
+        companyName:
+          type: string
+        industry:
+          type: string
+        postalCode:
+          type: string
+        prefecture:
+          type: string
+        city:
+          type: string
+        addressLine1:
+          type: string
+        phoneNumber:
+          type: string
+        email:
+          type: string
+          format: email
+        website:
+          type: string
+          format: uri
+        establishmentYear:
+          type: string
+        employeeCountCategory:
+          type: string
+        capitalAmount:
+          type: string
+        annualSales:
+          type: string
+        businessDescription:
+          type: string
+        isSmallBusiness:
+          type: boolean
+
+    Subsidy:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        summary:
+          type: string
+        organization:
+          type: string
+        categories:
+          type: array
+          items:
+            type: string
+        targetAudience:
+          type: string
+        deadline:
+          type: string
+          format: date
+        amount:
+          type: string
+    SubsidyMatch:
+      allOf:
+        - $ref: '#/components/schemas/Subsidy'
+        - type: object
+          properties:
+            matchScore:
+              type: number
+              format: float
+    SubsidySearchResponse:
+      type: object
+      properties:
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SubsidyMatch'
+
+    DocumentDraftRequest:
+      type: object
+      required: [companyInfo, subsidyId, sections]
+      properties:
+        companyInfo:
+          $ref: '#/components/schemas/CompanyProfile'
+        subsidyId:
+          type: string
+        sections:
+          type: array
+          items:
+            type: string
+            description: Section keys to generate (e.g., business_overview)
+    GeneratedSection:
+      type: object
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+        editable:
+          type: boolean
+
+    Application:
+      type: object
+      properties:
+        id:
+          type: string
+        subsidyName:
+          type: string
+        status:
+          type: string
+          enum: [準備中, 審査中, 採択, 不採択]
+        submissionDate:
+          type: string
+          format: date
+          nullable: true
+        deadline:
+          type: string
+          format: date
+        nextAction:
+          type: string
+        progress:
+          type: integer
+          minimum: 0
+          maximum: 100
+      required: [id, subsidyName, status]
+    ApplicationCreateRequest:
+      allOf:
+        - $ref: '#/components/schemas/Application'
+    ApplicationUpdateRequest:
+      type: object
+      properties:
+        status:
+          type: string
+        progress:
+          type: integer
+          minimum: 0
+          maximum: 100
