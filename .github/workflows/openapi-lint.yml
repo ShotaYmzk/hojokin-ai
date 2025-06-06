@@ -1,0 +1,16 @@
+# .github/workflows/openapi-lint.yml
+name: OpenAPI Lint
+on:
+  push:
+    branches: [ main, develop ]   # ←必要に応じて変更
+  pull_request:
+
+jobs:
+  spectral:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: stoplightio/spectral-action@v0
+        with:
+          file_glob: "openapi.yaml"   # spec の場所を変えるならここも変更
+
