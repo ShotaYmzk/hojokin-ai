@@ -1,5 +1,6 @@
 // File: ./lib/api.ts
 import axios from "axios";
+export * from "./clients/jgrants"
 
 interface LoginCredentials {
   email?: string; // 仮の型、実際には適切な型定義を
@@ -36,6 +37,12 @@ export const loginUser = async (credentials: LoginCredentials) => {
   }
 };
 
+export async function searchSubsidies(params: any) {
+  const query = new URLSearchParams(params).toString();
+  const res = await fetch(`/api/subsidies?${query}`);
+  if (!res.ok) throw new Error('検索失敗');
+  return await res.json();
+}
 // 他のAPI関数 (getProfile, getSubsidies, etc.)
 // 例:
 // export const getCompanyProfile = async () => {
