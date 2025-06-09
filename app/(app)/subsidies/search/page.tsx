@@ -1,19 +1,74 @@
 // File: /app/(app)/subsidies/search/page.tsx
 "use client";
 
-import React, { useState, useEffect, useCallback, ChangeEvent } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useDebounce } from "use-debounce";
 
 import { searchSubsidies } from "@/lib/api";
 import { components, paths } from "@/types/jgrants";
 
+// --- アイコン (HeroIconsなどからインポート推奨) ---
+const SearchIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 20 20"
+    fill="currentColor"
+    {...props}
+  >
+    <path
+      fillRule="evenodd"
+      d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.452 4.391l3.328 3.329a.75.75 0 1 1-1.06 1.06l-3.329-3.328A7 7 0 0 1 2 9Z"
+      clipRule="evenodd"
+    />
+  </svg>
+);
+const FilterIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 20 20"
+    fill="currentColor"
+    {...props}
+  >
+    <path d="M2.628 1.601C5.028 1.206 7.49 1 10 1s4.973.206 7.372.601a.75.75 0 0 1 .628.74v2.288a2.25 2.25 0 0 1-.659 1.59l-4.682 4.683a2.25 2.25 0 0 0-.659 1.59v3.033a.75.75 0 0 1-1.11.67L9.35 18.336a.75.75 0 0 1-.35-.67v-3.033a2.25 2.25 0 0 0-.659-1.59L3.659 8.22A2.25 2.25 0 0 1 3 6.629V2.34a.75.75 0 0 1 .628-.74Z" />
+  </svg>
+);
+const XMarkIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 20 20"
+    fill="currentColor"
+    {...props}
+  >
+    <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
+  </svg>
+);
+const ChevronDownIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 20 20"
+    fill="currentColor"
+    {...props}
+  >
+    <path
+      fillRule="evenodd"
+      d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z"
+      clipRule="evenodd"
+    />
+  </svg>
+);
+
 // --- 型定義 ---
 type JGrantsApiListItem = components["schemas"]["subsidy-summary-item"];
-type SearchParams = paths["/subsidies"]["get"]["parameters"]["query"] & {
-  page: number;
-  limit: number;
+type SearchParamsState = {
+  keyword?: string;
+  sort?: "created_date" | "acceptance_end_datetime" | "acceptance_start_datetime";
+  order?: "ASC" | "DESC";
+  acceptance?: "0" | "1";
+  industry?: string;
+  target_area_search?: string;
+  use_purpose?: string;
 };
 
 interface SubsidyResult {
@@ -24,289 +79,11 @@ interface SubsidyResult {
   categories: string[];
   targetRegions: string[];
   targetIndustries: string[];
-  targetEmployeeSizes: string[];
   deadline?: string;
   status: string;
 }
 
-// --- UIコンポーネント (変更なしのため省略) ---
-const Input: React.FC<any> = ({
-  label,
-  name,
-  value,
-  onChange,
-  type = "text",
-  placeholder,
-  className,
-  startContent,
-  isRequired,
-}) => (
-  <div className={className}>
-    {" "}
-    {label && (
-      <label
-        className="block text-sm font-medium text-foreground-700 mb-1"
-        htmlFor={name}
-      >
-        {label} {isRequired && <span className="text-danger">*</span>}
-      </label>
-    )}{" "}
-    <div className="relative">
-      {" "}
-      {startContent && (
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          {startContent}
-        </div>
-      )}{" "}
-      <input
-        className={`w-full border border-default-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary text-sm bg-content1 ${startContent ? "pl-10" : ""}`}
-        id={name}
-        name={name}
-        placeholder={placeholder}
-        required={isRequired}
-        type={type}
-        value={value}
-        onChange={onChange}
-      />{" "}
-    </div>{" "}
-  </div>
-);
-const Button: React.FC<any> = ({
-  children,
-  onClick,
-  type = "button",
-  color = "default",
-  isLoading,
-  disabled,
-  fullWidth,
-  className,
-  variant,
-  size,
-}) => {
-  const colorClasses =
-    color === "primary"
-      ? "bg-primary text-primary-foreground hover:bg-primary-focus"
-      : variant === "bordered"
-        ? "border border-default-300 text-foreground hover:bg-default-100"
-        : "bg-default-200 text-default-800 hover:bg-default-300";
-  const sizeClasses =
-    size === "sm" ? "px-3 py-1.5 text-xs" : "px-4 py-2 text-sm";
-
-  return (
-    <button
-      className={`font-medium transition-colors rounded-md ${sizeClasses} ${colorClasses} ${fullWidth ? "w-full" : ""} ${disabled ? "opacity-50 cursor-not-allowed" : ""} ${className}`}
-      disabled={isLoading || disabled}
-      type={type}
-      onClick={onClick}
-    >
-      {" "}
-      {isLoading && <Spinner className="mr-2" color="current" size="sm" />}{" "}
-      {isLoading ? "処理中..." : children}{" "}
-    </button>
-  );
-};
-const Select: React.FC<any> = ({
-  id,
-  label,
-  name,
-  value,
-  onChange,
-  children,
-  className,
-  isRequired,
-}) => (
-  <div className={className}>
-    {label && (
-      <label
-        className="block text-sm font-medium text-foreground-700 mb-1"
-        htmlFor={id || name}
-      >
-        {label} {isRequired && <span className="text-danger">*</span>}
-      </label>
-    )}
-    <select
-      className="w-full border border-default-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary text-sm bg-content1"
-      id={id || name}
-      name={name}
-      required={isRequired}
-      value={value}
-      onChange={onChange}
-    >
-      {children}
-    </select>
-  </div>
-);
-const Checkbox: React.FC<any> = ({
-  id,
-  label,
-  name,
-  checked,
-  onChange,
-  value,
-}) => (
-  <label className="flex items-center space-x-2 cursor-pointer" htmlFor={id}>
-    <input
-      checked={checked}
-      className="form-checkbox h-4 w-4 text-primary rounded border-default-300 focus:ring-primary"
-      id={id}
-      name={name}
-      type="checkbox"
-      value={value}
-      onChange={onChange}
-    />
-    <span className="text-sm text-foreground-700">{label}</span>
-  </label>
-);
-const Card: React.FC<any> = ({ children, className, isPressable, onPress }) =>
-  isPressable ? (
-    <button
-      className={`bg-background shadow-lg rounded-xl border border-divider text-left w-full ${isPressable ? "cursor-pointer hover:shadow-primary-glow transition-shadow focus:outline-none focus:ring-2 focus:ring-primary" : ""} ${className}`}
-      disabled={!isPressable}
-      type="button"
-      onClick={onPress}
-      onKeyDown={(e) => {
-        if (isPressable && (e.key === "Enter" || e.key === " ")) onPress?.(e);
-      }}
-    >
-      {" "}
-      {children}{" "}
-    </button>
-  ) : (
-    <div
-      className={`bg-background shadow-lg rounded-xl border border-divider ${className}`}
-    >
-      {children}
-    </div>
-  );
-const CardBody: React.FC<any> = ({ children, className }) => (
-  <div className={`p-4 md:p-6 ${className}`}>{children}</div>
-);
-const CardFooter: React.FC<any> = ({ children, className }) => (
-  <div
-    className={`p-4 md:p-6 border-t border-divider bg-content2 rounded-b-xl ${className}`}
-  >
-    {children}
-  </div>
-);
-const Pagination: React.FC<{
-  total: number;
-  page: number;
-  onChange: (page: number) => void;
-  className?: string;
-}> = ({ total, page, onChange, className }) => {
-  const pages = Array.from({ length: total }, (_, i) => i + 1);
-
-  if (total <= 1) return null;
-
-  return (
-    <nav
-      aria-label="Pagination"
-      className={`flex justify-center items-center space-x-2 ${className}`}
-    >
-      {" "}
-      <Button
-        disabled={page === 1}
-        size="sm"
-        variant="bordered"
-        onClick={() => onChange(page - 1)}
-      >
-        ◀<span className="sr-only">Previous</span>
-      </Button>{" "}
-      {pages.map((p) => (
-        <Button
-          key={p}
-          color={p === page ? "primary" : "default"}
-          size="sm"
-          variant={p === page ? "solid" : "bordered"}
-          onClick={() => onChange(p)}
-        >
-          {p}
-        </Button>
-      ))}{" "}
-      <Button
-        disabled={page === total}
-        size="sm"
-        variant="bordered"
-        onClick={() => onChange(page + 1)}
-      >
-        ▶<span className="sr-only">Next</span>
-      </Button>{" "}
-    </nav>
-  );
-};
-const Spinner: React.FC<{
-  size?: "sm" | "md" | "lg";
-  color?: string;
-  className?: string;
-}> = ({ size = "md", className }) => {
-  const sizeClasses =
-    size === "sm" ? "h-4 w-4" : size === "lg" ? "h-8 w-8" : "h-5 w-5";
-
-  return (
-    <div
-      className={`animate-spin rounded-full border-2 border-current border-t-transparent ${sizeClasses} ${className}`}
-    />
-  );
-};
-const Chip: React.FC<{
-  children: React.ReactNode;
-  color?:
-    | "primary"
-    | "secondary"
-    | "success"
-    | "warning"
-    | "danger"
-    | "default"
-    | "info";
-  size?: "sm" | "md" | "lg";
-  variant?:
-    | "solid"
-    | "bordered"
-    | "light"
-    | "flat"
-    | "faded"
-    | "shadow"
-    | "dot";
-  className?: string;
-}> = ({ children, color = "default", variant = "solid", className }) => {
-  const baseStyle =
-    "px-2.5 py-0.5 text-xs rounded-full font-medium inline-flex items-center";
-  const colorStyles: Record<string, string> = {
-    default: "bg-default-200 text-default-800",
-    primary: "bg-primary text-primary-foreground",
-    success: "bg-success text-success-foreground",
-    info: "bg-sky-100 text-sky-700",
-    warning: "bg-warning text-warning-foreground",
-    danger: "bg-danger text-danger-foreground",
-    secondary: "bg-secondary-100 text-secondary-800",
-  };
-  let appliedStyle = "";
-
-  if (variant === "bordered") {
-    const borderColor = color === "default" ? "default-300" : `${color}-300`;
-    const textColor =
-      color === "default"
-        ? "default-800"
-        : `${color}-600 dark:text-${color}-400`;
-
-    appliedStyle = `border border-${borderColor} text-${textColor} bg-transparent`;
-  } else if (variant === "flat") {
-    const bgColor = color === "default" ? "default-100" : `${color}-100`;
-    const textColor = color === "default" ? "default-800" : `${color}-700`;
-
-    appliedStyle = `bg-${bgColor} text-${textColor}`;
-  } else {
-    appliedStyle = colorStyles[color] || colorStyles.default;
-  }
-
-  return (
-    <span className={`${baseStyle} ${appliedStyle} ${className}`}>
-      {children}
-    </span>
-  );
-};
-
-// --- 選択肢データ (Jグランツのenum値をそのまま使用) ---
+// --- 選択肢データ ---
 const industryOptions = [
   { id: "農業，林業", name: "農業，林業" },
   { id: "漁業", name: "漁業" },
@@ -320,16 +97,6 @@ const industryOptions = [
     id: "サービス業（他に分類されないもの）",
     name: "サービス業（他に分類されないもの）",
   },
-];
-const employeeSizeOptions = [
-  { id: "従業員の制約なし", name: "従業員の制約なし" },
-  { id: "5名以下", name: "5名以下" },
-  { id: "20名以下", name: "20名以下" },
-  { id: "50名以下", name: "50名以下" },
-  { id: "100名以下", name: "100名以下" },
-  { id: "300名以下", name: "300名以下" },
-  { id: "900名以下", name: "900名以下" },
-  { id: "901名以上", name: "901名以上" },
 ];
 const regionOptions = [
   { id: "全国", name: "全国" },
@@ -349,523 +116,587 @@ const purposeOptions = [
   { id: "研究開発・実証事業を行いたい", name: "研究開発・実証事業を行いたい" },
   { id: "雇用・職場環境を改善したい", name: "雇用・職場環境を改善したい" },
 ];
+const sortOptions = [
+  { id: "created_date", name: "新着順" },
+  { id: "acceptance_end_datetime", name: "締切が近い順" },
+  { id: "acceptance_start_datetime", name: "募集開始順" },
+];
 
+// --- UIコンポーネント ---
+const CardSkeleton = () => (
+  <div className="bg-background shadow-lg rounded-xl border border-divider p-6 animate-pulse">
+    <div className="flex justify-between items-start gap-4">
+      <div className="w-3/4 space-y-3">
+        <div className="h-6 bg-default-200 rounded w-full" />
+        <div className="h-4 bg-default-200 rounded w-1/2" />
+      </div>
+      <div className="w-1/4 h-5 bg-default-200 rounded" />
+    </div>
+    <div className="mt-4 space-y-2">
+      <div className="h-4 bg-default-200 rounded w-full" />
+      <div className="h-4 bg-default-200 rounded w-5/6" />
+    </div>
+    <div className="mt-4 flex flex-wrap gap-2">
+      <div className="h-5 w-20 bg-default-200 rounded-full" />
+      <div className="h-5 w-24 bg-default-200 rounded-full" />
+      <div className="h-5 w-16 bg-default-200 rounded-full" />
+    </div>
+  </div>
+);
+
+const Accordion: React.FC<{
+  title: string;
+  children: React.ReactNode;
+  defaultOpen?: boolean;
+}> = ({ title, children, defaultOpen = false }) => {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+  return (
+    <div className="border-b border-divider">
+      <button
+        className="w-full flex justify-between items-center py-4 text-left"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <h3 className="text-md font-semibold text-foreground-800">{title}</h3>
+        <ChevronDownIcon
+          className={`w-5 h-5 text-foreground-500 transition-transform ${
+            isOpen ? "rotate-180" : ""
+          }`}
+        />
+      </button>
+      {isOpen && <div className="pb-4 animate-fadeIn">{children}</div>}
+    </div>
+  );
+};
+
+// --- データマッピング関数 ---
+const mapJGrantsItemToSubsidyResult = (
+  item: JGrantsApiListItem,
+): SubsidyResult => {
+  const parseSlashSeparatedString = (
+    str: string | undefined | null,
+  ): string[] =>
+    str
+      ? str
+          .split(" / ")
+          .map((s) => s.trim())
+          .filter(Boolean)
+      : [];
+  let status = "不明";
+  const now = new Date();
+  const startDate = item.acceptance_start_datetime
+    ? new Date(item.acceptance_start_datetime)
+    : null;
+  const endDate = item.acceptance_end_datetime
+    ? new Date(item.acceptance_end_datetime)
+    : null;
+
+  if (startDate && endDate) {
+    if (now >= startDate && now <= endDate) status = "受付中";
+    else if (now < startDate) status = "募集開始前";
+    else status = "募集終了";
+  }
+
+  return {
+    id: String(item.id ?? Date.now() + Math.random()),
+    name: item.title ?? item.name ?? "名称不明",
+    summary: item.title ?? "概要は詳細ページをご確認ください。",
+    organization: item.organizer ?? "N/A",
+    categories: parseSlashSeparatedString(item.use_purpose),
+    targetIndustries: parseSlashSeparatedString(item.industry),
+    targetRegions: parseSlashSeparatedString(item.target_area_search),
+    deadline: item.acceptance_end_datetime
+      ? String(item.acceptance_end_datetime).substring(0, 10)
+      : undefined,
+    status,
+  };
+};
+
+// --- メインコンポーネント ---
 export default function SubsidySearchPage() {
   const router = useRouter();
-  const [searchParams, setSearchParams] = useState<SearchParams>({
-    keyword: "",
-    sort: "created_date",
-    order: "DESC",
-    acceptance: "1",
-    page: 1,
-    limit: 10,
-    industry: "",
-    target_number_of_employees: "",
-    target_area_search: "",
-    use_purpose: "",
-  });
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
-  const [debouncedSearchParams] = useDebounce(searchParams, 500);
-
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [searchResults, setSearchResults] = useState<SubsidyResult[]>([]);
   const [totalResults, setTotalResults] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const mapJGrantsItemToSubsidyResult = (
-    item: JGrantsApiListItem,
-  ): SubsidyResult => {
-    const subsidyName = item.title ?? item.name ?? "名称不明";
-    const summaryText = item.title ?? "概要は詳細ページをご確認ください。";
+  const paramsState: SearchParamsState = useMemo(
+    () => ({
+      keyword: searchParams.get("keyword") || undefined,
+      sort:
+        (searchParams.get("sort") as SearchParamsState["sort"]) ||
+        "created_date",
+      order: searchParams.get("sort") === "acceptance_end_datetime" ? "ASC" : "DESC",
+      acceptance:
+        (searchParams.get("acceptance") as SearchParamsState["acceptance"]) || "1",
+      industry: searchParams.get("industry") || undefined,
+      target_area_search: searchParams.get("target_area_search") || undefined,
+      use_purpose: searchParams.get("use_purpose") || undefined,
+    }),
+    [searchParams],
+  );
 
-    const parseSlashSeparatedString = (
-      str: string | undefined | null,
-    ): string[] =>
-      str
-        ? str
-            .split(" / ")
-            .map((s) => s.trim())
-            .filter(Boolean)
-        : [];
+  const [debouncedParams] = useDebounce(paramsState, 500);
 
-    let status = "不明";
-    const now = new Date();
-    const startDate = item.acceptance_start_datetime
-      ? new Date(item.acceptance_start_datetime)
-      : null;
-    const endDate = item.acceptance_end_datetime
-      ? new Date(item.acceptance_end_datetime)
-      : null;
+  const page = Number(searchParams.get("page")) || 1;
+  const limit = 10;
 
-    if (startDate && endDate) {
-      if (now >= startDate && now <= endDate) {
-        status = "受付中";
-      } else if (now < startDate) {
-        status = "募集開始前";
+  const updateQueryParams = useCallback(
+    (newParams: Partial<SearchParamsState>, resetPage: boolean = true) => {
+      const current = new URLSearchParams(Array.from(searchParams.entries()));
+
+      Object.entries(newParams).forEach(([key, value]) => {
+        if (value) {
+          current.set(key, String(value));
+        } else {
+          current.delete(key);
+        }
+      });
+
+      if (resetPage) {
+        current.delete("page");
+      }
+
+      const sort = current.get("sort");
+      if (sort === "acceptance_end_datetime") {
+        current.set("order", "ASC");
       } else {
-        status = "募集終了";
-      }
-    }
-
-    return {
-      id: String(item.id ?? Date.now() + Math.random()),
-      name: subsidyName,
-      summary: summaryText,
-      organization: item.organizer ?? "N/A",
-      categories: parseSlashSeparatedString(item.use_purpose),
-      targetIndustries: parseSlashSeparatedString(item.industry),
-      targetRegions: parseSlashSeparatedString(item.target_area_search),
-      targetEmployeeSizes: item.target_number_of_employees
-        ? [item.target_number_of_employees]
-        : [],
-      deadline: item.acceptance_end_datetime
-        ? String(item.acceptance_end_datetime).substring(0, 10)
-        : undefined,
-      status: status,
-    };
-  };
-
-  const performSearch = useCallback(async (paramsToSearch: SearchParams) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const apiParams: paths["/subsidies"]["get"]["parameters"]["query"] = {
-        keyword: paramsToSearch.keyword,
-        sort: paramsToSearch.sort,
-        order: paramsToSearch.order,
-        acceptance: paramsToSearch.acceptance,
-        use_purpose: paramsToSearch.use_purpose,
-        industry: paramsToSearch.industry,
-        target_number_of_employees: paramsToSearch.target_number_of_employees,
-        target_area_search: paramsToSearch.target_area_search,
-        limit: paramsToSearch.limit,
-        offset: (paramsToSearch.page - 1) * paramsToSearch.limit,
-      };
-
-      const data = await searchSubsidies(apiParams);
-
-      if (!data || !Array.isArray(data.result)) {
-        throw new Error(data?.message || "検索結果の形式が正しくありません。");
+        current.set("order", "DESC");
       }
 
-      const count = Number(
-        data.metadata?.resultset?.count ?? data.result.length,
-      );
-      const mappedResults: SubsidyResult[] = data.result.map(
-        mapJGrantsItemToSubsidyResult,
-      );
+      router.push(`${pathname}?${current.toString()}`);
+    },
+    [pathname, router, searchParams],
+  );
 
-      setSearchResults(mappedResults);
-      setTotalResults(count);
-    } catch (err: any) {
-      setError(err.message || "検索中に不明なエラーが発生しました。");
-      setSearchResults([]);
-      setTotalResults(0);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+  const performSearch = useCallback(
+    async (paramsToSearch: SearchParamsState) => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const apiParams: paths["/subsidies"]["get"]["parameters"]["query"] = {
+          ...paramsToSearch,
+          sort: paramsToSearch.sort ?? "created_date",
+          order: paramsToSearch.order ?? "DESC",
+          acceptance: paramsToSearch.acceptance ?? "1",
+          target_area_search: toAllowedTargetArea(
+            paramsToSearch.target_area_search,
+          ),
+          limit,
+          offset: (page - 1) * limit,
+        };
+        const data = await searchSubsidies(apiParams);
+
+        if (!data || !Array.isArray(data.result)) {
+          throw new Error(
+            data?.message || "検索結果の形式が正しくありません。",
+          );
+        }
+        const count = Number(
+          data.metadata?.resultset?.count ?? data.result.length,
+        );
+        const mappedResults: SubsidyResult[] = data.result.map(
+          mapJGrantsItemToSubsidyResult,
+        );
+
+        setSearchResults(mappedResults);
+        setTotalResults(count);
+      } catch (err: any) {
+        setError(err.message || "検索中に不明なエラーが発生しました。");
+        setSearchResults([]);
+        setTotalResults(0);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [page],
+  );
 
   useEffect(() => {
-    performSearch(debouncedSearchParams);
-  }, [debouncedSearchParams, performSearch]);
+    performSearch(debouncedParams);
+  }, [debouncedParams, performSearch]);
 
-  const handleFilterChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  ) => {
-    const { name, value } = e.target;
-
-    setSearchParams((prev) => ({ ...prev, [name]: value, page: 1 }));
+  const handlePageChange = (newPage: number) => {
+    const current = new URLSearchParams(Array.from(searchParams.entries()));
+    current.set("page", String(newPage));
+    router.push(`${pathname}?${current.toString()}`);
   };
 
   const handleMultiSelectChange = (
-    name: keyof SearchParams,
-    itemId: string,
+    name: keyof SearchParamsState,
+    value: string,
   ) => {
-    setSearchParams((prev) => {
-      const currentValues = prev[name]
-        ? (prev[name] as string).split(" / ").filter(Boolean)
-        : [];
-      const newValues = currentValues.includes(itemId)
-        ? currentValues.filter((id) => id !== itemId)
-        : [...currentValues, itemId];
-
-      return { ...prev, [name]: newValues.join(" / "), page: 1 };
-    });
-  };
-
-  const handlePageChange = (newPage: number) => {
-    setSearchParams((prev) => ({ ...prev, page: newPage }));
+    const currentValues = paramsState[name]?.split(" / ").filter(Boolean) || [];
+    const newValues = currentValues.includes(value)
+      ? currentValues.filter((v) => v !== value)
+      : [...currentValues, value];
+    updateQueryParams({ [name]: newValues.join(" / ") });
   };
 
   const resetFilters = () => {
-    setSearchParams({
-      keyword: "",
-      sort: "created_date",
-      order: "DESC",
-      acceptance: "1",
-      page: 1,
-      limit: 10,
-      industry: "",
-      target_number_of_employees: "",
-      target_area_search: "",
-      use_purpose: "",
-    });
+    router.push(pathname);
   };
 
-  const totalPages = Math.ceil(totalResults / searchParams.limit);
+  const totalPages = Math.ceil(totalResults / limit);
+  const appliedFilters = useMemo(
+    () =>
+      Object.entries(paramsState).filter(
+        ([key, value]) =>
+          value && !["sort", "order", "acceptance", "keyword"].includes(key),
+      ),
+    [paramsState],
+  );
+
+  const renderFilters = (isMobile: boolean = false) => (
+    <aside
+      className={`${
+        isMobile
+          ? "p-4"
+          : "lg:col-span-1 space-y-4 lg:sticky lg:top-24 self-start"
+      }`}
+    >
+      {isMobile && <h2 className="text-xl font-bold mb-4">絞り込み</h2>}
+      <Accordion title="利用目的" defaultOpen>
+        <div className="space-y-2">
+          {purposeOptions.map((opt) => (
+            <label key={opt.id} className="flex items-center space-x-2 cursor-pointer">
+              <input
+                type="checkbox"
+                name="use_purpose"
+                value={opt.name}
+                checked={paramsState.use_purpose?.includes(opt.name)}
+                onChange={() => handleMultiSelectChange("use_purpose", opt.name)}
+                className="form-checkbox h-4 w-4 text-primary rounded border-default-300 focus:ring-primary"
+              />
+              <span className="text-sm text-foreground-700">{opt.name}</span>
+            </label>
+          ))}
+        </div>
+      </Accordion>
+      <Accordion title="業種">
+        <div className="space-y-2">
+          {industryOptions.map((opt) => (
+            <label key={opt.id} className="flex items-center space-x-2 cursor-pointer">
+              <input
+                type="checkbox"
+                name="industry"
+                value={opt.name}
+                checked={paramsState.industry?.includes(opt.name)}
+                onChange={() => handleMultiSelectChange("industry", opt.name)}
+                className="form-checkbox h-4 w-4 text-primary rounded border-default-300 focus:ring-primary"
+              />
+              <span className="text-sm text-foreground-700">{opt.name}</span>
+            </label>
+          ))}
+        </div>
+      </Accordion>
+      <Accordion title="地域">
+        <select
+          name="target_area_search"
+          value={paramsState.target_area_search}
+          onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+            updateQueryParams({ target_area_search: e.target.value })
+          }
+          className="w-full border border-default-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary text-sm bg-content1"
+        >
+          <option value="">指定なし</option>
+          {regionOptions.map((opt) => (
+            <option key={opt.id} value={opt.id}>
+              {opt.name}
+            </option>
+          ))}
+        </select>
+      </Accordion>
+      <button
+        onClick={resetFilters}
+        className="w-full mt-4 text-sm text-primary hover:underline"
+      >
+        すべての条件をクリア
+      </button>
+    </aside>
+  );
 
   return (
-    <div className="space-y-8">
-      <header>
-        <h1 className="text-3xl font-bold text-foreground mb-2">
-          補助金・助成金検索
-        </h1>
+    <div className="space-y-6">
+      <header className="space-y-2">
+        <h1 className="text-3xl font-bold text-foreground">補助金・助成金検索</h1>
         <p className="text-foreground-500">
           キーワードや詳細条件で、あなたのビジネスに最適な支援制度を見つけましょう。
         </p>
+        <div className="relative pt-2">
+          <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground-400 pointer-events-none" />
+          <input
+            type="search"
+            name="keyword"
+            placeholder="制度名、目的、課題 (例: IT導入、販路拡大)"
+            className="w-full border border-default-300 rounded-lg pl-10 pr-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary text-base bg-background"
+            defaultValue={paramsState.keyword}
+            onChange={(e) => updateQueryParams({ keyword: e.target.value })}
+          />
+        </div>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        <aside className="lg:col-span-1 space-y-6 lg:sticky lg:top-24 self-start">
-          <Card>
-            <CardBody className="space-y-4">
-              <h3 className="text-lg font-semibold text-foreground-800">
-                検索条件
-              </h3>
-              <Input
-                label="キーワード"
-                name="keyword"
-                placeholder="制度名、目的など"
-                value={searchParams.keyword}
-                onChange={handleFilterChange}
-              />
-              <Select
-                label="並び順"
-                name="sort"
-                value={searchParams.sort}
-                onChange={handleFilterChange}
-              >
-                <option value="created_date">新着順</option>
-                <option value="acceptance_start_datetime">募集開始順</option>
-                <option value="acceptance_end_datetime">締切順</option>
-              </Select>
-              <Select
-                label="受付状況"
-                name="acceptance"
-                value={searchParams.acceptance}
-                onChange={handleFilterChange}
-              >
-                <option value="1">受付中のみ</option>
-                <option value="0">全て表示</option>
-              </Select>
-            </CardBody>
-          </Card>
-          <Card>
-            <CardBody>
-              <h3 className="text-lg font-semibold text-foreground-800 mb-3">
-                詳細条件
-              </h3>
-              <div className="space-y-4">
-                {/* ▼▼▼ 修正箇所 1 ▼▼▼ */}
-                <div>
-                  <div className="block text-sm font-medium text-foreground-700 mb-1">
-                    業種 (複数可)
-                  </div>
-                  <div className="max-h-48 overflow-y-auto space-y-1 border border-default-200 rounded-md p-3 bg-content1 shadow-sm">
-                    <fieldset>
-                      <legend className="sr-only">業種</legend>
-                      {industryOptions.map((opt) => {
-                        const checkboxId = `industry-${opt.id}`;
+        {/* Desktop Filters */}
+        <div className="hidden lg:block">{renderFilters()}</div>
 
-                        return (
-                          <div key={opt.id}>
-                            <Checkbox
-                              checked={searchParams.industry?.includes(opt.name)}
-                              id={checkboxId}
-                              label={opt.name}
-                              name="industry"
-                              value={opt.name}
-                              onChange={() =>
-                                handleMultiSelectChange("industry", opt.name)
-                              }
-                            />
-                          </div>
-                        );
-                      })}
-                    </fieldset>
-                  </div>
-                </div>
-                <div>
-                  <div className="block text-sm font-medium text-foreground-700 mb-1">
-                    利用目的 (複数可)
-                  </div>
-                  <div className="max-h-48 overflow-y-auto space-y-1 border border-default-200 rounded-md p-3 bg-content1 shadow-sm">
-                    <fieldset>
-                      <legend className="sr-only">利用目的</legend>
-                      {purposeOptions.map((opt) => {
-                        const checkboxId = `purpose-${opt.id}`;
-
-                        return (
-                          <div key={opt.id}>
-                            <Checkbox
-                              checked={searchParams.use_purpose?.includes(
-                                opt.name,
-                              )}
-                              id={checkboxId}
-                              label={opt.name}
-                              name="use_purpose"
-                              value={opt.name}
-                              onChange={() =>
-                                handleMultiSelectChange("use_purpose", opt.name)
-                              }
-                            />
-                          </div>
-                        );
-                      })}
-                    </fieldset>
-                  </div>
-                </div>
-                {/* ▲▲▲ 修正箇所 1 ▲▲▲ */}
-                <div>
-                  <label
-                    className="block text-sm font-medium text-foreground-700 mb-1"
-                    htmlFor="target_number_of_employees"
-                  >
-                    従業員規模
-                  </label>
-                  {/* ▼▼▼ 修正箇所 2 ▼▼▼ */}
-                  <Select
-                    id="target_number_of_employees"
-                    label={undefined}
-                    name="target_number_of_employees"
-                    value={searchParams.target_number_of_employees}
-                    onChange={handleFilterChange}
-                  >
-                  {/* ▲▲▲ 修正箇所 2 ▲▲▲ */}
-                    <option value="">指定なし</option>
-                    {employeeSizeOptions.map((opt) => (
-                      <option key={opt.id} value={opt.id}>
-                        {opt.name}
-                      </option>
-                    ))}
-                  </Select>
-                </div>
-                <div>
-                  <label
-                    className="block text-sm font-medium text-foreground-700 mb-1"
-                    htmlFor="target_area_search"
-                  >
-                    対象地域
-                  </label>
-                  {/* ▼▼▼ 修正箇所 3 ▼▼▼ */}
-                  <Select
-                    id="target_area_search"
-                    label={undefined}
-                    name="target_area_search"
-                    value={searchParams.target_area_search}
-                    onChange={handleFilterChange}
-                  >
-                  {/* ▲▲▲ 修正箇所 3 ▲▲▲ */}
-                    <option value="">指定なし</option>
-                    {regionOptions.map((opt) => (
-                      <option key={opt.id} value={opt.id}>
-                        {opt.name}
-                      </option>
-                    ))}
-                  </Select>
-                </div>
-              </div>
-            </CardBody>
-            <CardFooter>
-              <Button fullWidth variant="bordered" onClick={resetFilters}>
-                条件をクリア
-              </Button>
-            </CardFooter>
-          </Card>
-        </aside>
-
-        <main className="lg:col-span-3">
-          <div className="space-y-6">
-            <div className="flex justify-between items-center h-10">
-              <div className="flex items-center text-foreground-500">
-                {isLoading && <Spinner className="mr-2" size="sm" />}
-                {error && <p className="text-sm text-danger">{error}</p>}
-                {!isLoading && !error && (
-                  <p className="text-sm text-foreground-600">
-                    {totalResults}件の補助金が見つかりました。
-                  </p>
+        <main className="lg:col-span-3 space-y-6">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4 p-4 bg-content1 rounded-lg border border-divider">
+            <div className="flex items-center gap-2">
+              <p className="text-sm text-foreground-600 whitespace-nowrap">
+                {isLoading ? "検索中..." : `${totalResults}件の補助金`}
+              </p>
+              {appliedFilters.length > 0 && (
+                <span className="text-sm text-foreground-400 hidden sm:inline">
+                  |
+                </span>
+              )}
+              <div className="flex-wrap gap-1 hidden sm:flex">
+                {appliedFilters.map(([key, value]) =>
+                  (value as string)
+                    .split(" / ")
+                    .map((val) => (
+                      <span
+                        key={val}
+                        className="flex items-center gap-1 bg-primary-50 text-primary-700 text-xs font-medium px-2 py-1 rounded-full"
+                      >
+                        {val}
+                        <button
+                          onClick={() =>
+                            handleMultiSelectChange(
+                              key as keyof SearchParamsState,
+                              val,
+                            )
+                          }
+                        >
+                          <XMarkIcon className="w-3 h-3" />
+                        </button>
+                      </span>
+                    )),
                 )}
               </div>
-              {totalPages > 1 && (
-                <Pagination
-                  page={searchParams.page}
-                  total={totalPages}
-                  onChange={handlePageChange}
-                />
-              )}
             </div>
-
-            {!isLoading && searchResults.length > 0
-              ? searchResults.map((subsidy) => (
-                  <Card
-                    key={subsidy.id}
-                    isPressable
-                    onPress={() => router.push(`/subsidies/${subsidy.id}`)}
-                  >
-                    <CardBody>
-                      <div className="flex flex-col sm:flex-row justify-between items-start gap-3">
-                        <div className="flex-grow">
-                          <h2 className="text-xl font-semibold text-primary hover:underline">
-                            <Link href={`/subsidies/${subsidy.id}`}>
-                              {subsidy.name}
-                            </Link>
-                          </h2>
-                          <p className="mt-1 text-xs text-foreground-500">
-                            実施機関: {subsidy.organization}
-                          </p>
-                        </div>
-                        <div className="flex flex-col items-start sm:items-end flex-shrink-0 gap-1 mt-2 sm:mt-0">
-                          {subsidy.status && (
-                            <Chip
-                              color={
-                                subsidy.status.includes("受付中")
-                                  ? "success"
-                                  : "default"
-                              }
-                              size="sm"
-                              variant="flat"
-                            >
-                              {subsidy.status}
-                            </Chip>
-                          )}
-                          {subsidy.deadline && (
-                            <p className="text-xs text-danger font-medium">
-                              締切: {subsidy.deadline}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                      <p className="mt-3 text-sm text-foreground-600 line-clamp-3">
-                        {subsidy.summary}
-                      </p>
-                      <div className="mt-3 space-y-1.5">
-                        {subsidy.categories.length > 0 && (
-                          <div className="flex flex-wrap items-center gap-1.5">
-                            <span className="text-xs font-medium text-foreground-500 mr-1 self-start pt-0.5">
-                              目的:
-                            </span>
-                            {subsidy.categories.map((cat, idx) => (
-                              <Chip
-                                key={`cat-${idx}`}
-                                color="secondary"
-                                size="sm"
-                                variant="bordered"
-                              >
-                                {cat}
-                              </Chip>
-                            ))}
-                          </div>
-                        )}
-                        {subsidy.targetIndustries.length > 0 && (
-                          <div className="flex flex-wrap items-center gap-1.5">
-                            <span className="text-xs font-medium text-foreground-500 mr-1 self-start pt-0.5">
-                              対象業種:
-                            </span>
-                            {subsidy.targetIndustries.map((ind, idx) => (
-                              <Chip
-                                key={`ind-${idx}`}
-                                size="sm"
-                                variant="bordered"
-                              >
-                                {ind}
-                              </Chip>
-                            ))}
-                          </div>
-                        )}
-                        {subsidy.targetRegions.length > 0 && (
-                          <div className="flex flex-wrap items-center gap-1.5">
-                            <span className="text-xs font-medium text-foreground-500 mr-1 self-start pt-0.5">
-                              対象地域:
-                            </span>
-                            {subsidy.targetRegions.map((reg, idx) => (
-                              <Chip
-                                key={`reg-${idx}`}
-                                size="sm"
-                                variant="bordered"
-                              >
-                                {reg}
-                              </Chip>
-                            ))}
-                          </div>
-                        )}
-                        {subsidy.targetEmployeeSizes.length > 0 && (
-                          <div className="flex flex-wrap items-center gap-1.5">
-                            <span className="text-xs font-medium text-foreground-500 mr-1 self-start pt-0.5">
-                              対象従業員規模:
-                            </span>
-                            {subsidy.targetEmployeeSizes.map((size, idx) => (
-                              <Chip
-                                key={`size-${idx}`}
-                                size="sm"
-                                variant="bordered"
-                              >
-                                {size}
-                              </Chip>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </CardBody>
-                    <CardFooter className="flex justify-end items-center">
-                      <Link href={`/subsidies/${subsidy.id}`}>
-                        <Button color="primary" size="sm" variant="solid">
-                          詳細を見る →
-                        </Button>
-                      </Link>
-                    </CardFooter>
-                  </Card>
-                ))
-              : !isLoading &&
-                !error && (
-                  <div className="text-center py-20 bg-default-50 rounded-lg">
-                    <svg
-                      className="w-16 h-16 mx-auto text-foreground-300 mb-4"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth={1.5}
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                    <p className="text-xl text-foreground-500 mb-2">
-                      検索条件に一致する補助金は見つかりませんでした。
-                    </p>
-                    <p className="text-foreground-400">
-                      条件を変更して再度お試しください。
-                    </p>
-                  </div>
-                )}
-            <div className="flex justify-between items-center mt-6">
-              <div className="text-xs text-left text-foreground-400">
-                出典：Jグランツ
-              </div>
-              {totalPages > 1 && (
-                <Pagination
-                  page={searchParams.page}
-                  total={totalPages}
-                  onChange={handlePageChange}
-                />
-              )}
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <button
+                onClick={() => setIsFilterOpen(true)}
+                className="lg:hidden flex items-center gap-2 w-full justify-center px-4 py-2 text-sm font-medium text-foreground bg-default-100 border border-default-300 rounded-md hover:bg-default-200"
+              >
+                <FilterIcon className="w-4 h-4" />
+                絞り込み
+              </button>
+              <select
+                name="sort"
+                value={paramsState.sort}
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                  updateQueryParams({
+                    sort: e.target.value as SearchParamsState["sort"],
+                  })
+                }
+                className="w-full sm:w-auto border border-default-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary text-sm bg-background"
+              >
+                {sortOptions.map((opt) => (
+                  <option key={opt.id} value={opt.id}>
+                    {opt.name}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
+
+          {isLoading ? (
+            <div className="space-y-4">
+              {[...Array(5)].map((_, i) => (
+                <CardSkeleton key={i} />
+              ))}
+            </div>
+          ) : error ? (
+            <div className="text-center py-20 bg-danger-50 rounded-lg">
+              <p className="text-xl text-danger-700 mb-2">
+                エラーが発生しました
+              </p>
+              <p className="text-danger-600">{error}</p>
+            </div>
+          ) : searchResults.length > 0 ? (
+            <div className="space-y-4">
+              {searchResults.map((subsidy) => (
+                <Link
+                  key={subsidy.id}
+                  href={`/subsidies/${subsidy.id}`}
+                  className="block"
+                >
+                  <div className="bg-background shadow-lg rounded-xl border border-divider hover:border-primary hover:shadow-primary-glow transition-all duration-200 p-6">
+                    <div className="flex flex-col sm:flex-row justify-between items-start gap-3">
+                      <div className="flex-grow">
+                        <h2 className="text-lg font-semibold text-primary">
+                          {subsidy.name}
+                        </h2>
+                        <p className="mt-1 text-xs text-foreground-500">
+                          実施機関: {subsidy.organization}
+                        </p>
+                      </div>
+                      <div className="flex flex-col items-start sm:items-end flex-shrink-0 gap-1 mt-2 sm:mt-0">
+                        <span
+                          className={`px-2.5 py-0.5 text-xs rounded-full font-medium ${
+                            subsidy.status === "受付中"
+                              ? "bg-success text-success-foreground"
+                              : "bg-default-200 text-default-800"
+                          }`}
+                        >
+                          {subsidy.status}
+                        </span>
+                        {subsidy.deadline && (
+                          <p className="text-xs text-danger font-medium">
+                            締切: {subsidy.deadline}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <p className="mt-3 text-sm text-foreground-600 line-clamp-2">
+                      {subsidy.summary}
+                    </p>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {subsidy.categories.slice(0, 3).map((cat, idx) => (
+                        <span
+                          key={idx}
+                          className="bg-secondary-100 text-secondary-800 text-xs font-medium px-2 py-1 rounded-full"
+                        >
+                          {cat}
+                        </span>
+                      ))}
+                      {subsidy.targetRegions.slice(0, 1).map((reg, idx) => (
+                        <span
+                          key={idx}
+                          className="bg-default-100 text-default-800 text-xs font-medium px-2 py-1 rounded-full"
+                        >
+                          {reg}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-20 bg-default-50 rounded-lg">
+              <svg
+                className="w-16 h-16 mx-auto text-foreground-300 mb-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+              <p className="text-xl text-foreground-600 mb-2">
+                検索条件に一致する補助金は見つかりませんでした。
+              </p>
+              <p className="text-foreground-400">
+                条件を変更するか、キーワードを調整してください。
+              </p>
+              <div className="mt-6">
+                <Link
+                  href="/subsidies/matching-chat"
+                  className="bg-primary text-primary-foreground font-medium py-2 px-5 rounded-lg hover:bg-primary-focus transition-colors"
+                >
+                  AIチャットで探す
+                </Link>
+              </div>
+            </div>
+          )}
+          {totalPages > 1 && (
+            <nav
+              aria-label="Pagination"
+              className="flex justify-center items-center space-x-2 pt-4"
+            >
+              <button
+                disabled={page === 1}
+                onClick={() => handlePageChange(page - 1)}
+                className="px-3 py-1 text-sm rounded-md border border-default-300 bg-background hover:bg-default-100 disabled:opacity-50"
+              >
+                ◀
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                <button
+                  key={p}
+                  disabled={p === page}
+                  onClick={() => handlePageChange(p)}
+                  className={`px-3 py-1 text-sm rounded-md border ${
+                    p === page
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "border-default-300 bg-background hover:bg-default-100"
+                  }`}
+                >
+                  {p}
+                </button>
+              ))}
+              <button
+                disabled={page === totalPages}
+                onClick={() => handlePageChange(page + 1)}
+                className="px-3 py-1 text-sm rounded-md border border-default-300 bg-background hover:bg-default-100 disabled:opacity-50"
+              >
+                ▶
+              </button>
+            </nav>
+          )}
         </main>
       </div>
+
+      {/* Mobile Filter Drawer */}
+      {isFilterOpen && (
+        <div className="lg:hidden fixed inset-0 z-40">
+          {/* ▼▼▼ 修正箇所: jsx-a11yエラーを修正 ▼▼▼ */}
+          <button
+            type="button"
+            aria-label="フィルターを閉じる"
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setIsFilterOpen(false)}
+          />
+          {/* ▲▲▲ 修正箇所 ▲▲▲ */}
+          <div className="absolute bottom-0 left-0 right-0 max-h-[80vh] bg-background rounded-t-2xl shadow-2xl overflow-y-auto">
+            <div className="sticky top-0 bg-background/80 backdrop-blur-sm p-4 border-b border-divider flex justify-between items-center">
+              <h2 className="text-lg font-bold">絞り込み</h2>
+              <button onClick={() => setIsFilterOpen(false)}>
+                <XMarkIcon className="w-6 h-6" />
+              </button>
+            </div>
+            {renderFilters(true)}
+            <div className="p-4 sticky bottom-0 bg-background border-t border-divider">
+              <button
+                onClick={() => setIsFilterOpen(false)}
+                className="w-full bg-primary text-primary-foreground font-semibold py-3 rounded-lg"
+              >
+                {totalResults}件の補助金を見る
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
+}
+
+// Get the allowed values from the OpenAPI type
+type TargetAreaSearch = NonNullable<
+  paths["/subsidies"]["get"]["parameters"]["query"]["target_area_search"]
+>;
+const allowedTargetAreas: TargetAreaSearch[] = [
+  "", "全国", "北海道地方", "東北地方", "関東・甲信越地方", "東海・北陸地方", "近畿地方", "中国地方", "四国地方", "九州・沖縄地方",
+  "北海道", "青森県", "岩手県", "宮城県", "秋田県", "山形県", "福島県", "茨城県", "栃木県", "群馬県", "埼玉県", "千葉県", "東京都", "神奈川県",
+  "新潟県", "富山県", "石川県", "福井県", "山梨県", "長野県", "岐阜県", "静岡県", "愛知県", "三重県", "滋賀県", "京都府", "大阪府", "兵庫県", "奈良県", "和歌山県",
+  "鳥取県", "島根県", "岡山県", "広島県", "山口県", "徳島県", "香川県", "愛媛県", "高知県", "福岡県", "佐賀県", "長崎県", "熊本県", "大分県", "宮崎県", "鹿児島県", "沖縄県",
+];
+
+function toAllowedTargetArea(
+  val: string | undefined,
+): TargetAreaSearch | undefined {
+  return allowedTargetAreas.includes(val as TargetAreaSearch)
+    ? (val as TargetAreaSearch)
+    : undefined;
 }

@@ -13,6 +13,18 @@ const config = {
         sans: ["var(--font-sans)"],
         mono: ["var(--font-mono)"],
       },
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+      },
+      animation: {
+        fadeIn: 'fadeIn 0.3s ease-in-out',
+      },
+      boxShadow: {
+        'primary-glow': '0 0 15px 0 rgba(var(--heroui-primary), 0.3)',
+      }
     },
   },
   darkMode: "class",
