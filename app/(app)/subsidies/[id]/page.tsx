@@ -5,107 +5,8 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 
-// HeroUIコンポーネント (実際のインポートパスに合わせてください)
-// import { Card, CardHeader, CardBody, CardFooter } from "@heroui/card";
-// import { Button } from "@heroui/button";
-// import { Chip } from "@heroui/chip";
-// import { Spinner } from "@heroui/spinner";
-// import { Tabs, Tab } from "@heroui/react";
-
-// 仮のUIコンポーネント (HeroUIの実際のコンポーネントに置き換えてください)
-const Card: React.FC<any> = ({ children, className }) => (
-  <div
-    className={`bg-background shadow-lg rounded-xl border border-divider ${className}`}
-  >
-    {children}
-  </div>
-);
-const CardHeader: React.FC<any> = ({ children, className }) => (
-  <div className={`p-6 border-b border-divider ${className}`}>{children}</div>
-);
-const CardBody: React.FC<any> = ({ children, className }) => (
-  <div className={`p-6 ${className}`}>{children}</div>
-);
-const Button: React.FC<any> = ({
-  children,
-  onClick,
-  type = "button",
-  color = "default",
-  isLoading,
-  disabled,
-  fullWidth,
-  className,
-  variant,
-  size,
-  as,
-  href,
-}) => {
-  const colorClasses =
-    color === "primary"
-      ? "bg-primary text-primary-foreground hover:bg-primary-focus"
-      : color === "success"
-        ? "bg-success text-success-foreground hover:bg-success-focus"
-        : variant === "bordered"
-          ? "border border-default-300 text-foreground hover:bg-default-100"
-          : "bg-default-200 text-default-800 hover:bg-default-300";
-  const sizeClasses =
-    size === "sm" ? "px-3 py-1.5 text-xs" : "px-4 py-2 text-sm";
-  const commonClasses = `font-medium transition-colors rounded-md ${sizeClasses} ${colorClasses} ${fullWidth ? "w-full" : ""} ${disabled ? "opacity-50 cursor-not-allowed" : ""} ${className}`;
-
-  if (as === Link)
-    return (
-      <Link
-        aria-disabled={disabled}
-        className={commonClasses}
-        href={href || "#"}
-        onClick={onClick}
-      >
-        {children}
-      </Link>
-    );
-
-  return (
-    <button
-      className={commonClasses}
-      disabled={isLoading || disabled}
-      type={type}
-      onClick={onClick}
-    >
-      {children}
-    </button>
-  );
-};
-const Chip: React.FC<any> = ({
-  children,
-  color = "default",
-  _size,
-  className,
-}) => {
-  const colors: Record<string, string> = {
-    default: "bg-default-200 text-default-800",
-    primary: "bg-primary-100 text-primary-800",
-    success: "bg-success-100 text-success-800",
-    warning: "bg-warning-100 text-warning-800",
-    danger: "bg-danger-100 text-danger-800",
-  };
-
-  return (
-    <span
-      className={`px-2.5 py-0.5 text-xs rounded-full font-medium ${colors[color] || colors.default} ${className}`}
-    >
-      {children}
-    </span>
-  );
-};
-const Spinner: React.FC<any> = ({ _size, _color, className }) => (
-  <div
-    className={`animate-spin rounded-full border-2 border-current border-t-transparent h-8 w-8 ${className}`}
-  />
-);
-
-// 型定義
-// ★ SubsidyResult 型を定義 (または外部ファイルからインポート)
-interface SubsidyResult {
+// --- 型定義の拡張 ---
+interface SubsidyDetail {
   id: string;
   name: string;
   summary: string;
@@ -113,11 +14,6 @@ interface SubsidyResult {
   categories: string[];
   targetAudience: string;
   deadline?: string;
-  matchScore?: number;
-}
-
-// ★ SubsidyDetail 型が SubsidyResult を拡張するように修正
-interface SubsidyDetail extends SubsidyResult {
   purpose: string;
   eligibility: string;
   subsidyAmountDetails: string;
@@ -127,21 +23,20 @@ interface SubsidyDetail extends SubsidyResult {
   officialPageUrl?: string;
   requiredDocuments?: string[];
   notes?: string;
+  eligibilityChecklist?: { id: string; text: string }[]; // ★申請要件チェックリストを追加
 }
 
-// ダミーデータ (実際にはAPIから取得)
-// ★ dummySubsidyDetails の型を { [key: string]: SubsidyDetail } に指定
+// --- ダミーデータの拡充 ---
 const dummySubsidyDetails: { [key: string]: SubsidyDetail } = {
   "1": {
-    id: "1", // SubsidyResult から継承
-    name: "IT導入補助金2025", // SubsidyResult から継承
+    id: "1",
+    name: "IT導入補助金2025",
     summary:
-      "中小企業・小規模事業者等のITツール導入を支援し、生産性向上を図る。", // SubsidyResult から継承
-    organization: "経済産業省 中小企業庁", // SubsidyResult から継承
-    categories: ["IT導入", "業務効率化"], // SubsidyResult から継承
-    targetAudience: "中小企業・小規模事業者", // SubsidyResult から継承
-    deadline: "2025-06-30", // SubsidyResult から継承
-    matchScore: 92, // SubsidyResult から継承
+      "中小企業・小規模事業者等のITツール導入を支援し、生産性向上を図る。",
+    organization: "経済産業省 中小企業庁",
+    categories: ["IT導入", "業務効率化"],
+    targetAudience: "中小企業・小規模事業者",
+    deadline: "2025-06-30",
     purpose:
       "ITツール（ソフトウェア、サービス等）の導入にかかる経費の一部を補助することで、中小企業・小規模事業者の生産性向上を支援する。",
     eligibility:
@@ -162,10 +57,18 @@ const dummySubsidyDetails: { [key: string]: SubsidyDetail } = {
     ],
     notes:
       "申請類型や申請枠によって要件・補助額が細かく異なります。必ず最新の公募要領をご確認ください。",
+    // ★チェックリストの項目を追加
+    eligibilityChecklist: [
+      { id: "check1", text: "日本国内に本社・事業所がある" },
+      { id: "check2", text: "中小企業・小規模事業者である" },
+      { id: "check3", text: "GビズIDプライムを取得済み、または取得予定である" },
+      {
+        id: "check4",
+        text: "IT導入支援事業者が登録したITツールを導入する計画がある",
+      },
+    ],
   },
-  // 他の補助金の詳細データも同様に定義
   "2": {
-    // 例としてもう一つ追加
     id: "2",
     name: "ものづくり補助金",
     summary:
@@ -174,7 +77,6 @@ const dummySubsidyDetails: { [key: string]: SubsidyDetail } = {
     categories: ["設備投資", "新サービス開発"],
     targetAudience: "中小企業・小規模事業者",
     deadline: "2025-05-20",
-    matchScore: 85,
     purpose:
       "中小企業・小規模事業者等が取り組む革新的な製品・サービス開発又は生産プロセス・サービス提供方法の改善に必要な設備・システム投資等を支援します。",
     eligibility:
@@ -194,8 +96,108 @@ const dummySubsidyDetails: { [key: string]: SubsidyDetail } = {
     ],
     notes:
       "加点項目や特別枠など、有利に進めるためのポイントがあります。公募要領の熟読が不可欠です。",
+    eligibilityChecklist: [
+      { id: "check1", text: "中小企業・小規模事業者である" },
+      { id: "check2", text: "給与支給総額の年率平均1.5%以上の増加計画がある" },
+      {
+        id: "check3",
+        text: "事業場内最低賃金を地域別最低賃金より30円以上高く設定する計画がある",
+      },
+      { id: "check4", text: "認定経営革新等支援機関の確認を受けている" },
+    ],
   },
 };
+
+// --- UIコンポーネント (仮) ---
+const Card: React.FC<{ children: React.ReactNode; className?: string }> = ({
+  children,
+  className,
+}) => (
+  <div
+    className={`bg-background shadow-lg rounded-xl border border-divider ${className}`}
+  >
+    {children}
+  </div>
+);
+const CardHeader: React.FC<{
+  children: React.ReactNode;
+  className?: string;
+}> = ({ children, className }) => (
+  <div className={`p-6 border-b border-divider ${className}`}>{children}</div>
+);
+const CardBody: React.FC<{ children: React.ReactNode; className?: string }> = ({
+  children,
+  className,
+}) => <div className={`p-6 ${className}`}>{children}</div>;
+
+const Button: React.FC<any> = ({
+  children,
+  onClick,
+  color = "default",
+  disabled,
+  fullWidth,
+  className,
+  as,
+  href,
+  ...props
+}) => {
+  const colorClasses =
+    color === "primary"
+      ? "bg-primary text-primary-foreground hover:bg-primary-focus"
+      : color === "success"
+        ? "bg-success text-success-foreground hover:bg-success-focus"
+        : "bg-default-200 text-default-800 hover:bg-default-300";
+  const commonClasses = `inline-block text-center px-4 py-2 text-sm font-medium transition-colors rounded-md ${colorClasses} ${
+    fullWidth ? "w-full" : ""
+  } ${disabled ? "opacity-50 cursor-not-allowed" : ""} ${className}`;
+
+  if (as === Link) {
+    return (
+      <Link href={href || "#"} className={commonClasses} {...props}>
+        {children}
+      </Link>
+    );
+  }
+  return (
+    <button
+      className={commonClasses}
+      disabled={disabled}
+      onClick={onClick}
+      {...props}
+    >
+      {children}
+    </button>
+  );
+};
+
+const Chip: React.FC<{
+  children: React.ReactNode;
+  color?: string;
+  className?: string;
+}> = ({ children, color = "default", className }) => {
+  const colors: Record<string, string> = {
+    default: "bg-default-200 text-default-800",
+    primary: "bg-primary-100 text-primary-800",
+    success: "bg-success-100 text-success-800",
+    warning: "bg-warning-100 text-warning-800",
+    danger: "bg-danger-100 text-danger-800",
+  };
+  return (
+    <span
+      className={`px-2.5 py-0.5 text-xs rounded-full font-medium ${
+        colors[color] || colors.default
+      } ${className}`}
+    >
+      {children}
+    </span>
+  );
+};
+
+const Spinner: React.FC<{ className?: string }> = ({ className }) => (
+  <div
+    className={`animate-spin rounded-full border-2 border-current border-t-transparent h-8 w-8 ${className}`}
+  />
+);
 
 export default function SubsidyDetailPage() {
   const params = useParams();
@@ -205,6 +207,9 @@ export default function SubsidyDetailPage() {
   const [subsidy, setSubsidy] = useState<SubsidyDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [checkedRequirements, setCheckedRequirements] = useState<Set<string>>(
+    new Set(),
+  );
 
   useEffect(() => {
     if (subsidyId) {
@@ -212,9 +217,8 @@ export default function SubsidyDetailPage() {
         setIsLoading(true);
         setError(null);
         try {
-          await new Promise((resolve) => setTimeout(resolve, 700)); // Simulate API delay
-          const data = dummySubsidyDetails[subsidyId]; // ★ オブジェクトからキーでアクセス
-
+          await new Promise((resolve) => setTimeout(resolve, 500));
+          const data = dummySubsidyDetails[subsidyId];
           if (!data) {
             throw new Error("指定された補助金は見つかりませんでした。");
           }
@@ -225,21 +229,30 @@ export default function SubsidyDetailPage() {
           setIsLoading(false);
         }
       };
-
       fetchSubsidyDetail();
-    } else {
-      setError("補助金IDが指定されていません。");
-      setIsLoading(false);
     }
   }, [subsidyId]);
 
+  const handleRequirementCheck = (checkId: string) => {
+    setCheckedRequirements((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(checkId)) {
+        newSet.delete(checkId);
+      } else {
+        newSet.add(checkId);
+      }
+      return newSet;
+    });
+  };
+
+  const allRequirementsChecked = subsidy?.eligibilityChecklist
+    ? checkedRequirements.size === subsidy.eligibilityChecklist.length
+    : false;
+
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)]">
-        <Spinner _size="lg" />
-        <p className="mt-4 text-foreground-600">
-          補助金情報を読み込んでいます...
-        </p>
+      <div className="flex justify-center py-20">
+        <Spinner />
       </div>
     );
   }
@@ -259,9 +272,7 @@ export default function SubsidyDetailPage() {
   }
 
   if (!subsidy) {
-    return (
-      <div className="text-center py-10">補助金情報が見つかりません。</div>
-    );
+    return null;
   }
 
   const detailSections = [
@@ -280,16 +291,14 @@ export default function SubsidyDetailPage() {
   ];
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 pb-12">
+    <div className="max-w-5xl mx-auto space-y-8 pb-12">
       <header className="pt-4">
-        <Button
-          className="mb-4"
-          size="sm"
-          variant="bordered"
+        <button
           onClick={() => router.back()}
+          className="text-sm text-foreground-500 hover:text-foreground-800 mb-4"
         >
           ← 検索結果に戻る
-        </Button>
+        </button>
         <h1 className="text-3xl md:text-4xl font-bold text-foreground">
           {subsidy.name}
         </h1>
@@ -299,16 +308,47 @@ export default function SubsidyDetailPage() {
           <Chip>{subsidy.targetAudience}</Chip>
           {subsidy.categories.map((cat: string) => (
             <Chip key={cat}>{cat}</Chip>
-          ))}{" "}
-          {/* ★ cat の型を明示 */}
+          ))}
           {subsidy.deadline && (
             <Chip color="danger">締切: {subsidy.deadline}</Chip>
           )}
         </div>
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-2 space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 space-y-6">
+          {subsidy.eligibilityChecklist &&
+            subsidy.eligibilityChecklist.length > 0 && (
+              <Card className="border-primary-300 bg-primary-50">
+                <CardHeader>
+                  <h2 className="text-xl font-semibold text-primary-800">
+                    申請要件チェックリスト
+                  </h2>
+                  <p className="text-sm text-primary-700 mt-1">
+                    申請を開始する前に、すべての要件を満たしているか確認しましょう。
+                  </p>
+                </CardHeader>
+                <CardBody className="space-y-3">
+                  {subsidy.eligibilityChecklist.map((item) => (
+                    <label
+                      key={item.id}
+                      className="flex items-center p-3 bg-background rounded-lg cursor-pointer hover:bg-default-50"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={checkedRequirements.has(item.id)}
+                        onChange={() => handleRequirementCheck(item.id)}
+                        className="form-checkbox h-5 w-5 text-primary rounded border-default-400 focus:ring-primary"
+                      />
+                      <span className="ml-3 text-sm font-medium text-foreground-800">
+                        {item.text}
+                      </span>
+                    </label>
+                  ))}
+                </CardBody>
+              </Card>
+            )}
+
           {detailSections.map(
             (section) =>
               section.content && (
@@ -328,45 +368,35 @@ export default function SubsidyDetailPage() {
           )}
         </div>
 
-        <aside className="md:col-span-1 space-y-6 md:sticky md:top-24 self-start">
+        <aside className="lg:col-span-1 space-y-6 lg:sticky lg:top-24 self-start">
           <Card>
             <CardBody className="space-y-4">
               {subsidy.officialPageUrl && (
                 <Button
-                  fullWidth
-                  as={Link} // HeroUIのButtonがLinkコンポーネントをサポートする場合
-                  className="flex items-center justify-center gap-2"
-                  color="primary"
+                  as={Link}
                   href={subsidy.officialPageUrl}
-                  rel="noopener noreferrer"
                   target="_blank"
+                  rel="noopener noreferrer"
+                  fullWidth
+                  color="primary"
                 >
-                  <span className="text-lg">🌐</span> 公式ページで詳細を確認
+                  🌐 公式ページで詳細を確認
                 </Button>
               )}
               <Button
                 fullWidth
-                className="flex items-center justify-center gap-2"
                 color="success"
+                disabled={!allRequirementsChecked}
                 onClick={() =>
-                  router.push(
-                    `/documents/generate?subsidyId=${subsidy.id}&subsidyName=${encodeURIComponent(subsidy.name)}`,
-                  )
+                  router.push(`/documents/create?subsidyId=${subsidy.id}`)
+                }
+                title={
+                  !allRequirementsChecked
+                    ? "先にすべての申請要件をチェックしてください"
+                    : ""
                 }
               >
-                <span className="text-lg">🤖</span> AIで書類ドラフト作成
-              </Button>
-              <Button
-                fullWidth
-                className="flex items-center justify-center gap-2"
-                variant="bordered"
-                onClick={() =>
-                  router.push(
-                    `/documents/create?subsidyId=${subsidy.id}&subsidyName=${encodeURIComponent(subsidy.name)}`,
-                  )
-                }
-              >
-                <span className="text-lg">📝</span> 手動で書類作成を開始
+                📝 この内容で書類作成に進む
               </Button>
             </CardBody>
           </Card>

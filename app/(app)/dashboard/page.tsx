@@ -2,24 +2,26 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-// import { Card, CardHeader, CardBody } from "@heroui/card";
-// import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@heroui/table";
-// import { Chip } from "@heroui/chip"; // ステータス表示用
-// import { Progress } from "@heroui/progress";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
-// 仮の型定義
+// --- 型定義の拡張 ---
+interface Task {
+  id: string;
+  label: string;
+  completed: boolean;
+}
+
 interface Application {
   id: string;
   subsidyName: string;
   status: "準備中" | "申請済" | "審査中" | "採択" | "不採択";
   submissionDate: string | null;
   deadline: string;
-  nextAction: string;
-  progress: number; // 0-100
+  tasks: Task[]; // タスクリストを追加
 }
 
-// 仮のデータ (実際にはAPIから取得)
+// --- ダミーデータの拡充 ---
 const dummyApplications: Application[] = [
   {
     id: "1",
@@ -27,8 +29,12 @@ const dummyApplications: Application[] = [
     status: "審査中",
     submissionDate: "2024-05-15",
     deadline: "2025-06-30",
-    nextAction: "結果待ち",
-    progress: 75,
+    tasks: [
+      { id: "t1-1", label: "GビズIDプライム取得", completed: true },
+      { id: "t1-2", label: "IT導入支援事業者の選定", completed: true },
+      { id: "t1-3", label: "事業計画書の作成", completed: true },
+      { id: "t1-4", label: "申請マイページから提出", completed: true },
+    ],
   },
   {
     id: "2",
@@ -36,8 +42,12 @@ const dummyApplications: Application[] = [
     status: "準備中",
     submissionDate: null,
     deadline: "2025-08-10",
-    nextAction: "書類作成開始",
-    progress: 20,
+    tasks: [
+      { id: "t2-1", label: "商工会議所への相談", completed: true },
+      { id: "t2-2", label: "経営計画書の作成", completed: false },
+      { id: "t2-3", label: "補助事業計画書の作成", completed: false },
+      { id: "t2-4", label: "電子申請", completed: false },
+    ],
   },
   {
     id: "3",
@@ -45,266 +55,180 @@ const dummyApplications: Application[] = [
     status: "採択",
     submissionDate: "2024-03-01",
     deadline: "2025-07-15",
-    nextAction: "交付申請",
-    progress: 100,
-  },
-  {
-    id: "4",
-    subsidyName: "ものづくり補助金",
-    status: "不採択",
-    submissionDate: "2024-04-10",
-    deadline: "2025-05-20",
-    nextAction: "再申請検討",
-    progress: 100,
+    tasks: [
+      { id: "t3-1", label: "認定支援機関との連携", completed: true },
+      { id: "t3-2", label: "事業計画の策定・提出", completed: true },
+      { id: "t3-3", label: "交付申請手続き", completed: false },
+      { id: "t3-4", label: "実績報告", completed: false },
+    ],
   },
 ];
 
-// 仮のCardコンポーネント
-const Card: React.FC<{ children: React.ReactNode; className?: string }> = ({
-  children,
-  className,
-}) => (
-  <div className={`bg-background shadow-md rounded-lg p-6 ${className}`}>
-    {children}
-  </div>
-);
-const CardHeader: React.FC<{
-  children: React.ReactNode;
-  className?: string;
-}> = ({ children, className }) => (
-  <div className={`border-b border-divider pb-4 mb-4 ${className}`}>
-    {children}
-  </div>
-);
-const CardBody: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <div>{children}</div>
-);
-
-// 仮のChipコンポーネント
-const Chip: React.FC<{
-  children: React.ReactNode;
-  color?: string;
-  _size?: string;
-  className?: string;
-}> = ({ children, color = "default", _size = "md", className }) => {
-  const colors: Record<string, string> = {
-    default: "bg-default-200 text-default-800",
-    primary: "bg-primary-100 text-primary-800",
-    success: "bg-success-100 text-success-800",
-    warning: "bg-warning-100 text-warning-800",
-    danger: "bg-danger-100 text-danger-800",
-  };
-
-  return (
-    <span
-      className={`px-2.5 py-0.5 text-xs rounded-full font-medium ${colors[color]} ${className}`}
-    >
-      {children}
-    </span>
-  );
+// --- UIコンポーネント (仮) ---
+const Card: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className }) => <div className={`bg-background shadow-md rounded-lg ${className}`}>{children}</div>;
+const CardHeader: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className }) => <div className={`border-b border-divider p-4 sm:p-6 ${className}`}>{children}</div>;
+const CardBody: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className }) => <div className={`p-4 sm:p-6 ${className}`}>{children}</div>;
+const Chip: React.FC<{ children: React.ReactNode; color?: string; className?: string; }> = ({ children, color = "default", className }) => {
+  const colors: Record<string, string> = { default: "bg-default-200 text-default-800", primary: "bg-primary-100 text-primary-800", success: "bg-success-100 text-success-800", warning: "bg-warning-100 text-warning-800", danger: "bg-danger-100 text-danger-800", };
+  return <span className={`px-2.5 py-0.5 text-xs rounded-full font-medium ${colors[color]} ${className}`}>{children}</span>;
 };
+
+// --- ヘルパー関数 ---
+const getDaysUntil = (deadline: string) => {
+  const diff = new Date(deadline).getTime() - new Date().getTime();
+  return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+};
+const getTaskProgress = (tasks: Task[]) => {
+  if (tasks.length === 0) return 0;
+  const completedTasks = tasks.filter((t) => t.completed).length;
+  return Math.round((completedTasks / tasks.length) * 100);
+};
+const getNextAction = (tasks: Task[]) => {
+    return tasks.find(t => !t.completed)?.label || "完了";
+}
 
 export default function DashboardPage() {
   const [applications, setApplications] = useState<Application[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
-    // APIから申請状況を取得する処理 (ダミー)
     const fetchApplications = async () => {
       setIsLoading(true);
-      // await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API delay
+      // APIコールをシミュレート
+      await new Promise((resolve) => setTimeout(resolve, 500));
       setApplications(dummyApplications);
       setIsLoading(false);
     };
-
     fetchApplications();
   }, []);
 
+  const handleTaskToggle = (appId: string, taskId: string) => {
+    setApplications(prevApps => prevApps.map(app => {
+      if (app.id === appId) {
+        return {
+          ...app,
+          tasks: app.tasks.map(task => 
+            task.id === taskId ? { ...task, completed: !task.completed } : task
+          ),
+        };
+      }
+      return app;
+    }));
+  };
+
   const getStatusColor = (status: Application["status"]): string => {
     switch (status) {
-      case "準備中":
-        return "warning";
-      case "申請済":
-        return "primary";
-      case "審査中":
-        return "primary";
-      case "採択":
-        return "success";
-      case "不採択":
-        return "danger";
-      default:
-        return "default";
+      case "準備中": return "warning";
+      case "申請済": case "審査中": return "primary";
+      case "採択": return "success";
+      case "不採択": return "danger";
+      default: return "default";
     }
   };
+
+  const upcomingDeadlines = applications
+    .filter(app => ["準備中", "審査中"].includes(app.status))
+    .sort((a, b) => getDaysUntil(a.deadline) - getDaysUntil(b.deadline));
 
   if (isLoading) {
     return <div className="text-center py-10">読み込み中...</div>;
   }
 
-  const summary = {
-    total: applications.length,
-    inProgress: applications.filter((app) =>
-      ["準備中", "申請済", "審査中"].includes(app.status),
-    ).length,
-    approved: applications.filter((app) => app.status === "採択").length,
-  };
-
   return (
     <div className="space-y-8">
-      <h1 className="text-3xl font-bold text-foreground">ダッシュボード</h1>
-
-      {/* サマリーカード */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
-          <CardBody>
-            <h3 className="text-sm font-medium text-foreground-500">
-              総申請数
-            </h3>
-            <p className="text-3xl font-semibold text-foreground-800 mt-1">
-              {summary.total}
-            </p>
-          </CardBody>
-        </Card>
-        <Card>
-          <CardBody>
-            <h3 className="text-sm font-medium text-foreground-500">進行中</h3>
-            <p className="text-3xl font-semibold text-primary mt-1">
-              {summary.inProgress}
-            </p>
-          </CardBody>
-        </Card>
-        <Card>
-          <CardBody>
-            <h3 className="text-sm font-medium text-foreground-500">
-              採択済み
-            </h3>
-            <p className="text-3xl font-semibold text-success mt-1">
-              {summary.approved}
-            </p>
-          </CardBody>
-        </Card>
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+        <h1 className="text-3xl font-bold text-foreground">ダッシュボード</h1>
+        <button
+            onClick={() => router.push("/subsidies/search")}
+            className="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary-focus transition-colors"
+        >
+            新しい補助金を探す
+        </button>
       </div>
 
-      {/* 申請状況一覧 */}
-      <Card>
-        <CardHeader>
-          <div className="flex justify-between items-center">
-            <h2 className="text-xl font-semibold text-foreground-800">
-              申請状況一覧
-            </h2>
-            <Link href="/subsidies/search">
-              <button className="bg-primary text-primary-foreground px-4 py-2 rounded-md text-sm font-medium hover:bg-primary-focus">
-                {" "}
-                {/* HeroUI Button推奨 */}
-                新しい補助金を探す
-              </button>
-            </Link>
+      {/* 締切が近い申請 */}
+      <section>
+        <h2 className="text-xl font-semibold text-foreground-800 mb-4">締切が近い申請</h2>
+        {upcomingDeadlines.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {upcomingDeadlines.slice(0, 3).map(app => {
+              const daysLeft = getDaysUntil(app.deadline);
+              return (
+                <Card key={app.id} className="border-l-4 border-danger">
+                  <CardBody>
+                    <div className="flex justify-between items-start">
+                      <Link href={`/documents/create?id=${app.id}`} className="text-lg font-bold text-primary hover:underline">{app.subsidyName}</Link>
+                      <Chip color={daysLeft <= 7 ? "danger" : "warning"}>残り{daysLeft}日</Chip>
+                    </div>
+                    <p className="text-sm text-foreground-500 mt-1">締切: {app.deadline}</p>
+                    <div className="mt-4">
+                        <p className="text-sm font-medium text-foreground-700">次のタスク:</p>
+                        <p className="text-sm text-foreground-900">{getNextAction(app.tasks)}</p>
+                    </div>
+                  </CardBody>
+                </Card>
+              )
+            })}
           </div>
-        </CardHeader>
-        <CardBody>
-          {applications.length === 0 ? (
-            <p className="text-foreground-500 py-4 text-center">
-              現在申請中の補助金はありません。
-            </p>
-          ) : (
+        ) : (
+          <p className="text-foreground-500">現在、締切が近い申請はありません。</p>
+        )}
+      </section>
+
+      {/* 申請状況とタスク一覧 */}
+      <section>
+        <h2 className="text-xl font-semibold text-foreground-800 mb-4">申請状況とタスク一覧</h2>
+        <Card>
             <div className="overflow-x-auto">
-              {/* HeroUIのTableコンポーネント推奨 */}
               <table className="min-w-full divide-y divide-divider">
                 <thead className="bg-content2">
                   <tr>
-                    <th
-                      className="px-6 py-3 text-left text-xs font-medium text-foreground-500 uppercase tracking-wider"
-                      scope="col"
-                    >
-                      補助金名
-                    </th>
-                    <th
-                      className="px-6 py-3 text-left text-xs font-medium text-foreground-500 uppercase tracking-wider"
-                      scope="col"
-                    >
-                      ステータス
-                    </th>
-                    <th
-                      className="px-6 py-3 text-left text-xs font-medium text-foreground-500 uppercase tracking-wider"
-                      scope="col"
-                    >
-                      申請/提出日
-                    </th>
-                    <th
-                      className="px-6 py-3 text-left text-xs font-medium text-foreground-500 uppercase tracking-wider"
-                      scope="col"
-                    >
-                      締切日
-                    </th>
-                    <th
-                      className="px-6 py-3 text-left text-xs font-medium text-foreground-500 uppercase tracking-wider"
-                      scope="col"
-                    >
-                      進捗
-                    </th>
-                    <th
-                      className="px-6 py-3 text-left text-xs font-medium text-foreground-500 uppercase tracking-wider"
-                      scope="col"
-                    >
-                      アクション
-                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-foreground-500 uppercase tracking-wider">補助金名</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-foreground-500 uppercase tracking-wider">ステータス</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-foreground-500 uppercase tracking-wider">タスク進捗</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-foreground-500 uppercase tracking-wider">次のアクション</th>
                   </tr>
                 </thead>
                 <tbody className="bg-background divide-y divide-divider">
-                  {applications.map((app) => (
+                  {applications.map((app) => {
+                    const progress = getTaskProgress(app.tasks);
+                    const nextAction = getNextAction(app.tasks);
+                    return (
                     <tr key={app.id}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-foreground-900">
-                        {app.subsidyName}
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <Link href={`/documents/create?id=${app.id}`} className="text-sm font-medium text-primary hover:underline">{app.subsidyName}</Link>
+                        <p className="text-xs text-foreground-500">締切: {app.deadline}</p>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <Chip color={getStatusColor(app.status)}>
-                          {app.status}
-                        </Chip>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground-500">
-                        {app.submissionDate || "-"}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground-500">
-                        {app.deadline}
+                        <Chip color={getStatusColor(app.status)}>{app.status}</Chip>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground-500">
                         <div className="flex items-center">
-                          <div className="w-20 bg-default-200 rounded-full h-1.5 mr-2">
-                            <div
-                              className={`h-1.5 rounded-full ${app.progress === 100 && app.status === "採択" ? "bg-success" : app.progress === 100 && app.status === "不採択" ? "bg-danger" : "bg-primary"}`}
-                              style={{ width: `${app.progress}%` }}
-                            />
+                          <div className="w-24 bg-default-200 rounded-full h-2 mr-2">
+                            <div className="bg-primary h-2 rounded-full" style={{ width: `${progress}%` }} />
                           </div>
-                          <span>{app.progress}%</span>
+                          <span>{progress}%</span>
                         </div>
-                        {/* <Progress value={app.progress} size="sm" color={getStatusColor(app.status) as any} className="max-w-[100px]" /> */}
+                        <p className="text-xs mt-1">{app.tasks.filter(t => t.completed).length} / {app.tasks.length} 件完了</p>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <Link
-                          className="text-primary hover:text-primary-focus"
-                          href={`/documents/${app.id}/edit`}
-                        >
-                          {" "}
-                          {/* 実際の書類編集ページへのパス */}
-                          {app.nextAction}
-                        </Link>
+                        {app.status === "準備中" ? (
+                            <div className="flex items-center">
+                                <input type="checkbox" id={`task-${app.id}`} checked={false} onChange={() => { /* タスク完了処理 */}} className="form-checkbox h-4 w-4 text-primary rounded border-default-300 focus:ring-primary mr-2" />
+                                <label htmlFor={`task-${app.id}`}>{nextAction}</label>
+                            </div>
+                        ) : (
+                            <span>{nextAction}</span>
+                        )}
                       </td>
                     </tr>
-                  ))}
+                  )})}
                 </tbody>
               </table>
             </div>
-          )}
-        </CardBody>
-      </Card>
-
-      {/* 今後のタスクや通知エリア (オプション) */}
-      {/* <Card>
-        <CardHeader><h2 className="text-xl font-semibold text-foreground-800">今後のタスク</h2></CardHeader>
-        <CardBody>
-          <p className="text-foreground-500">近々対応が必要なタスクはありません。</p>
-        </CardBody>
-      </Card> */}
+        </Card>
+      </section>
     </div>
   );
 }
