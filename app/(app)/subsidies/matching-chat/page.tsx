@@ -66,7 +66,7 @@ const MatchingChatPage: React.FC = () => {
     },
   ]);
   const [inputText, setInputText] = useState("");
-  const [companyInfo, _setCompanyInfo] = useState<CompanyInfo>({
+  const [_companyInfo, _setCompanyInfo] = useState<CompanyInfo>({
     // 型を明示
     name: "株式会社テクノソリューション",
     industry: "IT・通信",
@@ -345,18 +345,18 @@ const MatchingChatPage: React.FC = () => {
             <div className="text-sm text-foreground-600">会社情報:</div>{" "}
             {/* HeroUIのカラーを使用 */}
             <div className="text-sm font-medium text-foreground-800">
-              {companyInfo.name}
+              {_companyInfo.name}
             </div>{" "}
             {/* HeroUIのカラーを使用 */}
             <div className="text-xs bg-secondary-100 text-secondary-800 px-2 py-1 rounded-md">
               {" "}
               {/* HeroUIのカラーを使用 */}
-              {companyInfo.industry}
+              {_companyInfo.industry}
             </div>
             <div className="text-xs bg-secondary-100 text-secondary-800 px-2 py-1 rounded-md">
               {" "}
               {/* HeroUIのカラーを使用 */}
-              {companyInfo.employees}
+              {_companyInfo.employees}
             </div>
           </div>
           <button className="bg-danger hover:bg-danger-600 text-white px-4 py-2 rounded-md whitespace-nowrap cursor-pointer flex items-center">

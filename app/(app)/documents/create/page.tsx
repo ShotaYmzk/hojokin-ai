@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useState, useRef, ChangeEvent } from "react";
+import Link from "next/link";
 // FontAwesomeのアイコンをインポート (上記と同様のセットアップが必要)
 // import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 // import { faArrowLeft, faBuilding, faChartLine, faYenSign, faSearch, faCheckCircle, faInfoCircle, faCloudUploadAlt, faTimes, faEye, faSave, faPaperPlane, faFilePdf, faFileExcel } from '@fortawesome/free-solid-svg-icons';
@@ -134,16 +135,12 @@ const DocumentCreatePage: React.FC = () => {
 
   const handleSave = () => {
     // ここでAPIを呼び出してデータを保存する処理を実装
-    console.log("Form Data Saved:", formData);
-    console.log("Uploaded Files:", uploadedFiles);
     alert("入力内容を一時保存しました。"); // UIフィードバックはトースト通知などが望ましい
   };
 
   const handleSubmit = () => {
     // ここでAPIを呼び出してデータを送信する処理を実装
     // バリデーションもここで行う
-    console.log("Form Data Submitted:", formData);
-    console.log("Uploaded Files:", uploadedFiles);
     setProgress(100); // 仮
     alert("申請を提出しました。審査結果をお待ちください。"); // UIフィードバック
   };
@@ -176,15 +173,13 @@ const DocumentCreatePage: React.FC = () => {
           <h1 className="text-2xl font-bold text-primary">
             補助金申請書類作成
           </h1>
-          <a // Next.js の Link コンポーネント推奨
-            href="/subsidies/matching-chat" // 戻る先のパスを適切に設定
-            // data-readdy="true"
+          <Link
             className="flex items-center text-primary hover:text-primary-focus cursor-pointer"
+            href="/subsidies/matching-chat"
           >
-            {/* <FontAwesomeIcon icon={faArrowLeft} className="mr-2" /> */}
             <span className="mr-2">←</span>
             補助金検索に戻る
-          </a>
+          </Link>
         </div>
       </header>
 
@@ -341,7 +336,6 @@ const DocumentCreatePage: React.FC = () => {
                   {/* 会社情報タブ */}
                   {activeTab === "company" && (
                     <div className="space-y-5 animate-fadeIn">
-                      {" "}
                       {/* フェードインアニメーション追加 */}
                       {/* InputフィールドはHeroUIのInputコンポーネントでラップすることを推奨 */}
                       {/* 例: <Input label="会社名" name="companyName" value={formData.companyName} onChange={handleInputChange} isRequired /> */}

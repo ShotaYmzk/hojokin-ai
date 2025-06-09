@@ -93,8 +93,10 @@ export default function PasswordResetPage() {
         "パスワードリセット用のメールを送信しました。メールボックスをご確認ください。",
       );
       setEmail(""); // 送信後に入力欄をクリア
-    } catch (_err) {
-      setError('パスワードリセットメールの送信に失敗しました。もう一度お試しください。');
+    } catch {
+      setError(
+        "パスワードリセットメールの送信に失敗しました。もう一度お試しください。",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -139,12 +141,7 @@ export default function PasswordResetPage() {
             type="email"
             value={email}
           />
-          <Button
-            type="submit"
-            color="primary"
-            fullWidth
-            isLoading={isLoading}
-          >
+          <Button fullWidth color="primary" isLoading={isLoading} type="submit">
             リセットメールを送信
           </Button>
         </form>

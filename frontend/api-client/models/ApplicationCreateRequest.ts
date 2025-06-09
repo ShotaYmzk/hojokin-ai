@@ -68,7 +68,7 @@ export interface ApplicationCreateRequest {
  * @export
  */
 export const ApplicationCreateRequestStatusEnum = {
-    : '準備中',
+    1: '準備中',
     2: '審査中',
     3: '採択',
     4: '不採択'

@@ -40,8 +40,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     } else if (storedUser) {
       try {
         setUser(JSON.parse(storedUser));
-      } catch (e) {
-        console.error("Failed to parse user from localStorage", e);
+      } catch {
         // localStorage.removeItem('isLoggedIn');
         // localStorage.removeItem('user');
         // router.push('/login');
@@ -93,13 +92,16 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         {/* サイドバーの内容は常にレンダリングし、表示/非表示はCSSのtransformで制御 */}
         <>
           <div className="flex items-center justify-between mb-8">
-            <Link href="/dashboard" className="flex items-center gap-2">
-              <AppLogo size={32} className="text-primary" />
+            <Link className="flex items-center gap-2" href="/dashboard">
+              <AppLogo className="text-primary" size={32} />
               <span className="font-bold text-xl text-foreground">
                 {siteConfig.name.split(" ")[0]}
               </span>
             </Link>
-            <button onClick={() => setIsSidebarOpen(false)} className="md:hidden text-foreground-500 hover:text-foreground-700">
+            <button
+              className="md:hidden text-foreground-500 hover:text-foreground-700"
+              onClick={() => setIsSidebarOpen(false)}
+            >
               <span className="text-2xl">✕</span>
             </button>
           </div>
@@ -108,7 +110,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               {appNavItems.map((item) => (
                 <li key={item.href} className="mb-2">
                   <Link
-                    href={item.href}
                     className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors
                       ${
                         pathname === item.href ||
@@ -117,6 +118,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                           ? "bg-primary text-primary-foreground font-semibold shadow-sm"
                           : "text-foreground-600 hover:bg-default-100 hover:text-foreground-800"
                       }`}
+                    href={item.href}
                   >
                     {item.icon}
                     <span>{item.label}</span>
@@ -143,8 +145,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               </div>
             </div>
             <button
-              onClick={handleLogout}
               className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-danger-600 hover:bg-danger-50 hover:text-danger-700 transition-colors border border-danger-300"
+              onClick={handleLogout}
             >
               <IconPlaceholder className="w-5 h-5" />
               <span>ログアウト</span>
@@ -156,9 +158,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <div className="flex-1 flex flex-col overflow-hidden relative">
         {isSidebarOpen && (
           <div
+            aria-hidden="true"
             className="fixed inset-0 bg-black/30 z-10 md:hidden"
             onClick={() => setIsSidebarOpen(false)}
-            aria-hidden="true"
           />
         )}
 

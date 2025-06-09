@@ -225,7 +225,6 @@ export default function RegisterPage() {
       // }
 
       // const newUser = await response.json();
-      // console.log('User registered:', newUser);
 
       await new Promise((resolve) => setTimeout(resolve, 1500)); // APIコールをシミュレート
 

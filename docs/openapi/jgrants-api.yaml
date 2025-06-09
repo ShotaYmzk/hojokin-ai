@@ -1,8 +1,8 @@
-swagger: '2.0'
+swagger: "2.0"
 info:
   title: 補助金情報取得API
   description: 補助金情報取得API
-  version: '1.0'
+  version: "1.0"
 host: api.jgrants-portal.go.jp
 basePath: /exp/v1/public
 schemes:
@@ -51,8 +51,8 @@ paths:
           required: true
           in: query
           enum:
-            - '0'
-            - '1'
+            - "0"
+            - "1"
           type: string
         - name: use_purpose
           description: >-
@@ -74,13 +74,13 @@ paths:
           in: query
           enum:
             - 従業員の制約なし
-            - '5名以下'
-            - '20名以下'
-            - '50名以下'
-            - '100名以下'
-            - '300名以下'
-            - '900名以下'
-            - '901名以上'
+            - "5名以下"
+            - "20名以下"
+            - "50名以下"
+            - "100名以下"
+            - "300名以下"
+            - "900名以下"
+            - "901名以上"
           type: string
         - name: target_area_search
           description: >-
@@ -146,18 +146,18 @@ paths:
             - 沖縄県
           type: string
       responses:
-        '200':
-          description: ''
+        "200":
+          description: ""
           x-amf-mediaType: application/json
           schema:
-            $ref: '#/definitions/subsidy-summaries-response'
-        '500':
-          description: ''
+            $ref: "#/definitions/subsidy-summaries-response"
+        "500":
+          description: ""
           x-amf-mediaType: application/json
           schema:
-            $ref: '#/definitions/500-error-response'
-        '400':
-          description: ''
+            $ref: "#/definitions/500-error-response"
+        "400":
+          description: ""
           x-amf-mediaType: application/json
           schema:
             example:
@@ -169,8 +169,8 @@ paths:
             properties:
               message:
                 type: string
-        '401':
-          description: ''
+        "401":
+          description: ""
           x-amf-mediaType: application/json
           schema:
             example:
@@ -182,8 +182,8 @@ paths:
             properties:
               message:
                 type: string
-        '404':
-          description: ''
+        "404":
+          description: ""
           x-amf-mediaType: application/json
           schema:
             example:
@@ -195,8 +195,8 @@ paths:
             properties:
               message:
                 type: string
-        '405':
-          description: ''
+        "405":
+          description: ""
           x-amf-mediaType: application/json
           schema:
             example:
@@ -208,8 +208,8 @@ paths:
             properties:
               message:
                 type: string
-        '406':
-          description: ''
+        "406":
+          description: ""
           x-amf-mediaType: application/json
           schema:
             example:
@@ -221,8 +221,8 @@ paths:
             properties:
               message:
                 type: string
-        '415':
-          description: ''
+        "415":
+          description: ""
           x-amf-mediaType: application/json
           schema:
             example:
@@ -234,8 +234,8 @@ paths:
             properties:
               message:
                 type: string
-        '501':
-          description: ''
+        "501":
+          description: ""
           x-amf-mediaType: application/json
           schema:
             example:
@@ -263,18 +263,18 @@ paths:
           type: string
           maxLength: 18
       responses:
-        '200':
-          description: ''
+        "200":
+          description: ""
           x-amf-mediaType: application/json
           schema:
-            $ref: '#/definitions/subsidy-details-response'
-        '500':
-          description: ''
+            $ref: "#/definitions/subsidy-details-response"
+        "500":
+          description: ""
           x-amf-mediaType: application/json
           schema:
-            $ref: '#/definitions/500-error-response'
-        '400':
-          description: ''
+            $ref: "#/definitions/500-error-response"
+        "400":
+          description: ""
           x-amf-mediaType: application/json
           schema:
             example:
@@ -286,8 +286,8 @@ paths:
             properties:
               message:
                 type: string
-        '401':
-          description: ''
+        "401":
+          description: ""
           x-amf-mediaType: application/json
           schema:
             example:
@@ -299,8 +299,8 @@ paths:
             properties:
               message:
                 type: string
-        '404':
-          description: ''
+        "404":
+          description: ""
           x-amf-mediaType: application/json
           schema:
             example:
@@ -312,8 +312,8 @@ paths:
             properties:
               message:
                 type: string
-        '405':
-          description: ''
+        "405":
+          description: ""
           x-amf-mediaType: application/json
           schema:
             example:
@@ -325,8 +325,8 @@ paths:
             properties:
               message:
                 type: string
-        '406':
-          description: ''
+        "406":
+          description: ""
           x-amf-mediaType: application/json
           schema:
             example:
@@ -338,8 +338,8 @@ paths:
             properties:
               message:
                 type: string
-        '415':
-          description: ''
+        "415":
+          description: ""
           x-amf-mediaType: application/json
           schema:
             example:
@@ -351,8 +351,8 @@ paths:
             properties:
               message:
                 type: string
-        '501':
-          description: ''
+        "501":
+          description: ""
           x-amf-mediaType: application/json
           schema:
             example:
@@ -400,7 +400,7 @@ definitions:
         description: 補助金一覧検索結果情報（Result of querying subsidies list）
         type: array
         items:
-          $ref: '#/definitions/type'
+          $ref: "#/definitions/type"
   500-error-response:
     description: エラー情報（Result of error）
     type: object
@@ -464,7 +464,7 @@ definitions:
         description: 補助金詳細照会結果情報（Result of retrieving subsidy detail）
         type: array
         items:
-          $ref: '#/definitions/type_1'
+          $ref: "#/definitions/type_1"
   type:
     description: 補助金一覧検索結果情報（Result to search subsidies list)
     type: object
@@ -487,40 +487,40 @@ definitions:
         description: 補助金名（Subsidy name）
         example: 小規模事業者補助金
         x-amf-union:
-          - $ref: '#/definitions/title'
-          - type: 'null'
+          - $ref: "#/definitions/title"
+          - type: "null"
       target_area_search:
         description: >-
           補助対象地域（Target area to search）<br>値が複数ある場合は、「 / 」（半角スペース＋半角スラッシュ＋半角スペース）で区切る。<br>・全国<br>・北海道地方<br>・東北地方<br>・関東・甲信越地方<br>・東海・北陸地方<br>・近畿地方<br>・中国地方<br>・四国地方<br>・九州・沖縄地方<br>・北海道<br>・青森県<br>・岩手県<br>・宮城県<br>・秋田県<br>・山形県<br>・福島県<br>・茨城県<br>・栃木県<br>・群馬県<br>・埼玉県<br>・千葉県<br>・東京都<br>・神奈川県<br>・新潟県<br>・富山県<br>・石川県<br>・福井県<br>・山梨県<br>・長野県<br>・岐阜県<br>・静岡県<br>・愛知県<br>・三重県<br>・滋賀県<br>・京都府<br>・大阪府<br>・兵庫県<br>・奈良県<br>・和歌山県<br>・鳥取県<br>・島根県<br>・岡山県<br>・広島県<br>・山口県<br>・徳島県<br>・香川県<br>・愛媛県<br>・高知県<br>・福岡県<br>・佐賀県<br>・長崎県<br>・熊本県<br>・大分県<br>・宮崎県<br>・鹿児島県<br>・沖縄県
         example: 東京都 / 大阪府
         x-amf-union:
-          - $ref: '#/definitions/target_area_search_response'
-          - type: 'null'
+          - $ref: "#/definitions/target_area_search_response"
+          - type: "null"
       subsidy_max_limit:
         description: >-
           補助額上限（Subsidy maximum amount）<br>入力値以下の補助額上限が設定されている補助金に絞り込む。
         example: 10000000
         x-amf-union:
-          - $ref: '#/definitions/subsidy_max_limit'
-          - type: 'null'
+          - $ref: "#/definitions/subsidy_max_limit"
+          - type: "null"
       acceptance_start_datetime:
         description: 募集開始日時（Acceptance start date）
-        example: '2020-02-28T16:41:41.090Z'
+        example: "2020-02-28T16:41:41.090Z"
         x-amf-union:
-          - $ref: '#/definitions/acceptance_start_datetime'
-          - type: 'null'
+          - $ref: "#/definitions/acceptance_start_datetime"
+          - type: "null"
       acceptance_end_datetime:
         description: 募集終了日時（Acceptance end date）
-        example: '2021-02-28T16:41:41.090Z'
+        example: "2021-02-28T16:41:41.090Z"
         x-amf-union:
-          - $ref: '#/definitions/acceptance_end_datetime'
-          - type: 'null'
+          - $ref: "#/definitions/acceptance_end_datetime"
+          - type: "null"
       target_number_of_employees:
         description: 従業員数（Number of employees）
-        example: '20名以下'
+        example: "20名以下"
         x-amf-union:
-          - $ref: '#/definitions/target_number_of_employees'
-          - type: 'null'
+          - $ref: "#/definitions/target_number_of_employees"
+          - type: "null"
   type_1:
     description: 補助金詳細照会結果情報（Result of querying subsidy detail）
     type: object
@@ -543,129 +543,129 @@ definitions:
         description: 補助金名（Subsidy name）
         example: 小規模事業者補助金
         x-amf-union:
-          - $ref: '#/definitions/title'
-          - type: 'null'
+          - $ref: "#/definitions/title"
+          - type: "null"
       subsidy_catch_phrase:
         description: 補助金のキャッチコピー（Advertising slogan）
         example: 小規模事業者の生産性向上と持続的発展を図る
         x-amf-union:
-          - $ref: '#/definitions/subsidy_catch_phrase'
-          - type: 'null'
+          - $ref: "#/definitions/subsidy_catch_phrase"
+          - type: "null"
       detail:
         description: 補助金のサマリー（Purpose / Overview）
         example: >-
           小規模事業者が取り組む販路開拓等の取組の経費の一部を補助することにより、生産性向上と持続的発展を図ることを目的とします。
         x-amf-union:
-          - $ref: '#/definitions/detail'
-          - type: 'null'
+          - $ref: "#/definitions/detail"
+          - type: "null"
       use_purpose:
         description: >-
           利用目的（Use of subsidies）<br>値が複数ある場合は、「 / 」（半角スペース＋半角スラッシュ＋半角スペース）で区切る。<br>・新たな事業を行いたい<br>・販路拡大・海外展開をしたい<br>・イベント・事業運営支援がほしい<br>・事業を引き継ぎたい<br>・研究開発・実証事業を行いたい<br>・人材育成を行いたい<br>・資金繰りを改善したい<br>・設備整備・IT導入したい<br>・雇用・職場環境を改善したい<br>・エコ・SDG’s活動支援がほしい<br>・災害（自然災害、感染症等）支援がほしい<br>・教育・子育て・少子化への支援がほしい<br>・スポーツ・文化への支援がほしい<br>・安全・防災対策支援がほしい<br>・まちづくり・地域振興支援がほしい
         example: 新たな事業を行いたい / 設備整備・IT導入したい
         x-amf-union:
-          - $ref: '#/definitions/use_purpose'
-          - type: 'null'
+          - $ref: "#/definitions/use_purpose"
+          - type: "null"
       industry:
         description: >-
           業種（Industry）<br>値が複数ある場合は、半角スペース＋半角スラッシュ＋半角スペース）で区切る。<br>・農業，林業<br>・漁業<br>・鉱業，採石業，砂利採取業<br>・建設業<br>・製造業<br>・電気・ガス・熱供給・水道業<br>・情報通信業<br>・運輸業，郵便業<br>・卸売業，小売業<br>・金融業，保険業<br>・不動産業，物品賃貸業<br>・学術研究，専門・技術サービス業<br>・宿泊業，飲食サービス業<br>・生活関連サービス業，娯楽業<br>・教育，学習支援業<br>・医療，福祉<br>・複合サービス事業<br>・サービス業（他に分類されないもの）<br>・公務（他に分類されるものを除く）<br>・分類不能の産業
         example: 情報通信業 / 教育，学習支援業
         x-amf-union:
-          - $ref: '#/definitions/industry'
-          - type: 'null'
+          - $ref: "#/definitions/industry"
+          - type: "null"
       target_area_search:
         description: >-
           補助対象地域（Target area to search）<br>値が複数ある場合は、「 / 」（半角スペース＋半角スラッシュ＋半角スペース）で区切る。<br>・全国<br>・北海道地方<br>・東北地方<br>・関東・甲信越地方<br>・東海・北陸地方<br>・近畿地方<br>・中国地方<br>・四国地方<br>・九州・沖縄地方<br>・北海道<br>・青森県<br>・岩手県<br>・宮城県<br>・秋田県<br>・山形県<br>・福島県<br>・茨城県<br>・栃木県<br>・群馬県<br>・埼玉県<br>・千葉県<br>・東京都<br>・神奈川県<br>・新潟県<br>・富山県<br>・石川県<br>・福井県<br>・山梨県<br>・長野県<br>・岐阜県<br>・静岡県<br>・愛知県<br>・三重県<br>・滋賀県<br>・京都府<br>・大阪府<br>・兵庫県<br>・奈良県<br>・和歌山県<br>・鳥取県<br>・島根県<br>・岡山県<br>・広島県<br>・山口県<br>・徳島県<br>・香川県<br>・愛媛県<br>・高知県<br>・福岡県<br>・佐賀県<br>・長崎県<br>・熊本県<br>・大分県<br>・宮崎県<br>・鹿児島県<br>・沖縄県
         example: 東京都 / 大阪府
         x-amf-union:
-          - $ref: '#/definitions/target_area_search_response'
-          - type: 'null'
+          - $ref: "#/definitions/target_area_search_response"
+          - type: "null"
       target_area_detail:
         description: 補助対象地域詳細（Target area detail）
         example: 全国
         x-amf-union:
-          - $ref: '#/definitions/target_area_detail'
-          - type: 'null'
+          - $ref: "#/definitions/target_area_detail"
+          - type: "null"
       target_number_of_employees:
         description: 従業員数（Number of employees）
-        example: '20名以下'
+        example: "20名以下"
         x-amf-union:
-          - $ref: '#/definitions/target_number_of_employees'
-          - type: 'null'
+          - $ref: "#/definitions/target_number_of_employees"
+          - type: "null"
       subsidy_rate:
         description: 補助率（Subsidy rate）
-        example: '20%'
+        example: "20%"
         x-amf-union:
-          - $ref: '#/definitions/subsidy_rate'
-          - type: 'null'
+          - $ref: "#/definitions/subsidy_rate"
+          - type: "null"
       subsidy_max_limit:
         description: >-
           補助額上限（Subsidy maximum amount）<br>入力値以下の補助額上限が設定されている補助金に絞り込む。
         example: 10000000
         x-amf-union:
-          - $ref: '#/definitions/subsidy_max_limit'
-          - type: 'null'
+          - $ref: "#/definitions/subsidy_max_limit"
+          - type: "null"
       acceptance_start_datetime:
         description: 募集開始日時（Acceptance start date）
-        example: '2020-02-28T16:41:41.090Z'
+        example: "2020-02-28T16:41:41.090Z"
         x-amf-union:
-          - $ref: '#/definitions/acceptance_start_datetime'
-          - type: 'null'
+          - $ref: "#/definitions/acceptance_start_datetime"
+          - type: "null"
       acceptance_end_datetime:
         description: 募集終了日時（Acceptance end date）
-        example: '2021-02-28T16:41:41.090Z'
+        example: "2021-02-28T16:41:41.090Z"
         x-amf-union:
-          - $ref: '#/definitions/acceptance_end_datetime'
-          - type: 'null'
+          - $ref: "#/definitions/acceptance_end_datetime"
+          - type: "null"
       project_end_deadline:
         description: 事業終了期限（Project end deadline）
-        example: '2020-07-31T15:00:00.000Z'
+        example: "2020-07-31T15:00:00.000Z"
         x-amf-union:
-          - $ref: '#/definitions/project_end_deadline'
-          - type: 'null'
+          - $ref: "#/definitions/project_end_deadline"
+          - type: "null"
       request_reception_presence:
         description: >-
           申請受付有無（Request acceptability）<br>・有：申請を受付ける<br>・無：申請を受付けない
         example: 有
         x-amf-union:
-          - $ref: '#/definitions/request_reception_presence'
-          - type: 'null'
+          - $ref: "#/definitions/request_reception_presence"
+          - type: "null"
       is_enable_multiple_request:
         description: >-
           複数回申請可否（Multiple requests acceptability）<br>・true：申請可<br>・false：申請不可
         example: false
         x-amf-union:
-          - $ref: '#/definitions/is_enable_multiple_request'
-          - type: 'null'
+          - $ref: "#/definitions/is_enable_multiple_request"
+          - type: "null"
       front_subsidy_detail_page_url:
         description: 事業者向け補助金詳細画面URL
-        example: 'https://jgrants-2-xxx/subsidy/999999999999999999'
+        example: "https://jgrants-2-xxx/subsidy/999999999999999999"
         x-amf-union:
-          - $ref: '#/definitions/front_subsidy_detail_page_url'
-          - type: 'null'
+          - $ref: "#/definitions/front_subsidy_detail_page_url"
+          - type: "null"
       application_guidelines:
         description: 公募要領（Application guidelines）
         example:
           - name: 公募要領.pdf
             data: JVBERi0xLjQKJe
         x-amf-union:
-          - $ref: '#/definitions/application_guidelines'
-          - type: 'null'
+          - $ref: "#/definitions/application_guidelines"
+          - type: "null"
       outline_of_grant:
         description: 交付要綱（Outline of grant）
         example:
           - name: 交付要綱.pdf
             data: JVBERi0xLjQKJe
         x-amf-union:
-          - $ref: '#/definitions/outline_of_grant'
-          - type: 'null'
+          - $ref: "#/definitions/outline_of_grant"
+          - type: "null"
       application_form:
         description: 申請様式（Application form）
         example:
           - name: 申請様式.pdf
             data: JVBERi0xLjQKJe
         x-amf-union:
-          - $ref: '#/definitions/application_form'
-          - type: 'null'
+          - $ref: "#/definitions/application_form"
+          - type: "null"
   title:
     type: string
     maxLength: 100
@@ -684,13 +684,13 @@ definitions:
   target_number_of_employees:
     enum:
       - 従業員の制約なし
-      - '5名以下'
-      - '20名以下'
-      - '50名以下'
-      - '100名以下'
-      - '300名以下'
-      - '900名以下'
-      - '901名以上'
+      - "5名以下"
+      - "20名以下"
+      - "50名以下"
+      - "100名以下"
+      - "300名以下"
+      - "900名以下"
+      - "901名以上"
     type: string
   subsidy_catch_phrase:
     type: string
@@ -726,15 +726,15 @@ definitions:
   application_guidelines:
     type: array
     items:
-      $ref: '#/definitions/file_data'
+      $ref: "#/definitions/file_data"
   outline_of_grant:
     type: array
     items:
-      $ref: '#/definitions/file_data'
+      $ref: "#/definitions/file_data"
   application_form:
     type: array
     items:
-      $ref: '#/definitions/file_data'
+      $ref: "#/definitions/file_data"
   file_data:
     type: object
     additionalProperties: true

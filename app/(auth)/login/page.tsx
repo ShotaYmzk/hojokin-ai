@@ -125,26 +125,26 @@ export default function LoginPage() {
           <div>
             <Input
               isRequired
-              type="email"
+              disabled={isLoading}
               label="メールアドレス"
               labelPlacement="outside"
               placeholder="your@email.com"
+              type="email"
               value={email}
               onValueChange={setEmail}
-              disabled={isLoading}
             />
           </div>
 
           <div>
             <Input
               isRequired
-              type="password"
+              disabled={isLoading}
               label="パスワード"
               labelPlacement="outside"
               placeholder="••••••••"
+              type="password"
               value={password}
               onValueChange={setPassword}
-              disabled={isLoading}
             />
           </div>
 

@@ -1,7 +1,8 @@
 // lib/clients/jgrants.ts
 import qs from "qs";
-import { paths } from "@/types/jgrants";   // 1で生成した型
-import ky from "ky";                       // fetchラッパー。未導入なら fetch でも可
+import ky from "ky"; // fetchラッパー。未導入なら fetch でも可
+
+import { paths } from "@/types/jgrants"; // 1で生成した型
 
 const baseURL = process.env.NEXT_PUBLIC_JGRANTS_BASE_URL!;
 
@@ -11,13 +12,15 @@ const api = ky.create({
 });
 
 type SubsidyListParams = paths["/subsidies"]["get"]["parameters"]["query"];
-type SubsidyListRes = paths["/subsidies"]["get"]["responses"]["200"]["content"]["application/json"];
-type SubsidyDetailRes = paths["/subsidies/id/{id}"]["get"]["responses"]["200"]["content"]["application/json"];
-
+type SubsidyListRes =
+  paths["/subsidies"]["get"]["responses"]["200"]["content"]["application/json"];
+type SubsidyDetailRes =
+  paths["/subsidies/id/{id}"]["get"]["responses"]["200"]["content"]["application/json"];
 
 /** 補助金一覧取得（公式API仕様） */
 export async function searchSubsidies(params: SubsidyListParams) {
   const query = qs.stringify(params, { encode: false });
+
   return api.get(`subsidies?${query}`).json<SubsidyListRes>();
 }
 

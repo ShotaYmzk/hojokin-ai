@@ -13,9 +13,19 @@ import { useParams, useRouter } from "next/navigation";
 // import { Tabs, Tab } from "@heroui/react";
 
 // 仮のUIコンポーネント (HeroUIの実際のコンポーネントに置き換えてください)
-const Card: React.FC<any> = ({ children, className }) => <div className={`bg-background shadow-lg rounded-xl border border-divider ${className}`}>{children}</div>;
-const CardHeader: React.FC<any> = ({ children, className }) => <div className={`p-6 border-b border-divider ${className}`}>{children}</div>;
-const CardBody: React.FC<any> = ({ children, className }) => <div className={`p-6 ${className}`}>{children}</div>;
+const Card: React.FC<any> = ({ children, className }) => (
+  <div
+    className={`bg-background shadow-lg rounded-xl border border-divider ${className}`}
+  >
+    {children}
+  </div>
+);
+const CardHeader: React.FC<any> = ({ children, className }) => (
+  <div className={`p-6 border-b border-divider ${className}`}>{children}</div>
+);
+const CardBody: React.FC<any> = ({ children, className }) => (
+  <div className={`p-6 ${className}`}>{children}</div>
+);
 const Button: React.FC<any> = ({
   children,
   onClick,
@@ -87,7 +97,11 @@ const Chip: React.FC<any> = ({
     </span>
   );
 };
-const Spinner: React.FC<any> = ({_size, _color, className}) => <div className={`animate-spin rounded-full border-2 border-current border-t-transparent h-8 w-8 ${className}`}></div>;
+const Spinner: React.FC<any> = ({ _size, _color, className }) => (
+  <div
+    className={`animate-spin rounded-full border-2 border-current border-t-transparent h-8 w-8 ${className}`}
+  />
+);
 
 // 型定義
 // ★ SubsidyResult 型を定義 (または外部ファイルからインポート)

@@ -34,7 +34,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LoginRequest'
+              $ref: "#/components/schemas/LoginRequest"
             examples:
               default:
                 value:
@@ -46,7 +46,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LoginResponse'
+                $ref: "#/components/schemas/LoginResponse"
               examples:
                 default:
                   value:
@@ -67,7 +67,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RegisterRequest'
+              $ref: "#/components/schemas/RegisterRequest"
             examples:
               default:
                 value:
@@ -80,7 +80,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RegisterResponse'
+                $ref: "#/components/schemas/RegisterResponse"
 
   /company/profile:
     get:
@@ -93,7 +93,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CompanyProfile'
+                $ref: "#/components/schemas/CompanyProfile"
     put:
       tags: [Company]
       summary: Update company profile
@@ -103,14 +103,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CompanyProfile'
+              $ref: "#/components/schemas/CompanyProfile"
       responses:
         "200":
           description: Updated profile
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CompanyProfile'
+                $ref: "#/components/schemas/CompanyProfile"
 
   /subsidies:
     get:
@@ -157,7 +157,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SubsidySearchResponse'
+                $ref: "#/components/schemas/SubsidySearchResponse"
 
   /subsidies/{id}:
     get:
@@ -175,7 +175,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Subsidy'
+                $ref: "#/components/schemas/Subsidy"
         "404":
           description: Not found
 
@@ -189,7 +189,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CompanyProfile'
+              $ref: "#/components/schemas/CompanyProfile"
       responses:
         "200":
           description: Ranked subsidy matches
@@ -198,7 +198,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/SubsidyMatch'
+                  $ref: "#/components/schemas/SubsidyMatch"
 
   /ai/generate-document-draft:
     post:
@@ -210,7 +210,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DocumentDraftRequest'
+              $ref: "#/components/schemas/DocumentDraftRequest"
       responses:
         "200":
           description: Draft sections
@@ -219,7 +219,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/GeneratedSection'
+                  $ref: "#/components/schemas/GeneratedSection"
 
   /applications:
     post:
@@ -231,14 +231,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ApplicationCreateRequest'
+              $ref: "#/components/schemas/ApplicationCreateRequest"
       responses:
         "201":
           description: Created application
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Application'
+                $ref: "#/components/schemas/Application"
     get:
       tags: [Applications]
       summary: List applications for current user
@@ -251,7 +251,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Application'
+                  $ref: "#/components/schemas/Application"
 
   /applications/{id}:
     get:
@@ -270,7 +270,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Application'
+                $ref: "#/components/schemas/Application"
         "404":
           description: Not found
     put:
@@ -288,14 +288,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ApplicationUpdateRequest'
+              $ref: "#/components/schemas/ApplicationUpdateRequest"
       responses:
         "200":
           description: Updated application
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Application'
+                $ref: "#/components/schemas/Application"
 
 components:
   securitySchemes:
@@ -322,12 +322,12 @@ components:
         token:
           type: string
         user:
-          $ref: '#/components/schemas/User'
+          $ref: "#/components/schemas/User"
     RegisterRequest:
       allOf:
-        - $ref: '#/components/schemas/UserCreate'
+        - $ref: "#/components/schemas/UserCreate"
     RegisterResponse:
-      $ref: '#/components/schemas/User'
+      $ref: "#/components/schemas/User"
 
     User:
       type: object
@@ -414,7 +414,7 @@ components:
           type: string
     SubsidyMatch:
       allOf:
-        - $ref: '#/components/schemas/Subsidy'
+        - $ref: "#/components/schemas/Subsidy"
         - type: object
           properties:
             matchScore:
@@ -432,14 +432,14 @@ components:
         items:
           type: array
           items:
-            $ref: '#/components/schemas/SubsidyMatch'
+            $ref: "#/components/schemas/SubsidyMatch"
 
     DocumentDraftRequest:
       type: object
       required: [companyInfo, subsidyId, sections]
       properties:
         companyInfo:
-          $ref: '#/components/schemas/CompanyProfile'
+          $ref: "#/components/schemas/CompanyProfile"
         subsidyId:
           type: string
         sections:
@@ -483,7 +483,7 @@ components:
       required: [id, subsidyName, status]
     ApplicationCreateRequest:
       allOf:
-        - $ref: '#/components/schemas/Application'
+        - $ref: "#/components/schemas/Application"
     ApplicationUpdateRequest:
       type: object
       properties:

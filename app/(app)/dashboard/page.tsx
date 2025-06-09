@@ -84,9 +84,9 @@ const CardBody: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 const Chip: React.FC<{
   children: React.ReactNode;
   color?: string;
-  size?: string;
+  _size?: string;
   className?: string;
-}> = ({ children, color = "default", size = "md", className }) => {
+}> = ({ children, color = "default", _size = "md", className }) => {
   const colors: Record<string, string> = {
     default: "bg-default-200 text-default-800",
     primary: "bg-primary-100 text-primary-800",

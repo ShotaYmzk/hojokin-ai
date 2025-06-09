@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useEffect, FormEvent } from "react";
-import { useRouter, useSearchParams } from "next/navigation"; // useSearchParamsを追加
+import { useSearchParams } from "next/navigation"; // useSearchParamsを追加
 import Link from "next/link";
 
 // HeroUIコンポーネント (実際のインポートパスに合わせてください)
@@ -51,7 +51,7 @@ const Button: React.FC<any> = ({
   );
 };
 const Select: React.FC<any> = ({
-  label,
+  _label,
   name,
   value,
   onChange,
@@ -72,7 +72,7 @@ const Select: React.FC<any> = ({
   </select>
 );
 const Textarea: React.FC<any> = ({
-  label,
+  _label,
   name,
   value,
   onChange,
@@ -115,7 +115,7 @@ const CardFooter: React.FC<any> = ({ children, className }) => (
     {children}
   </div>
 );
-const Spinner: React.FC<any> = ({ size, color, className }) => (
+const Spinner: React.FC<any> = ({ _size, _color, className }) => (
   <div
     className={`animate-spin rounded-full border-2 border-current border-t-transparent h-5 w-5 ${className}`}
   />
@@ -152,7 +152,6 @@ interface GeneratedSection {
 }
 
 export default function DocumentGenerationPage() {
-  const router = useRouter();
   const searchParams = useSearchParams(); // URLクエリパラメータを取得
 
   const [companyInfo, setCompanyInfo] = useState<CompanyInfoSummary | null>(
