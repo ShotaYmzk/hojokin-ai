@@ -173,13 +173,15 @@ const DocumentCreatePage: React.FC = () => {
           <h1 className="text-2xl font-bold text-primary">
             補助金申請書類作成
           </h1>
+          {/* ▼▼▼ 修正箇所 ▼▼▼ */}
           <Link
-            className="flex items-center text-primary hover:text-primary-focus cursor-pointer"
             href="/subsidies/matching-chat"
+            className="flex items-center text-primary hover:text-primary-focus cursor-pointer"
           >
             <span className="mr-2">←</span>
             補助金検索に戻る
           </Link>
+          {/* ▲▲▲ 修正箇所 ▲▲▲ */}
         </div>
       </header>
 

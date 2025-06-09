@@ -40,7 +40,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     } else if (storedUser) {
       try {
         setUser(JSON.parse(storedUser));
+        // ▼▼▼ 修正箇所 ▼▼▼
       } catch {
+        // ▲▲▲ 修正箇所 ▲▲▲
         // localStorage.removeItem('isLoggedIn');
         // localStorage.removeItem('user');
         // router.push('/login');

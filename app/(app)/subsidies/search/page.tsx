@@ -372,12 +372,10 @@ export default function SubsidySearchPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // ★★★ ここからが修正箇所 ★★★
   const mapJGrantsItemToSubsidyResult = (
     item: JGrantsApiListItem,
   ): SubsidyResult => {
     const subsidyName = item.title ?? item.name ?? "名称不明";
-    // 一覧APIには概要がないため、補助金名を概要として暫定的に使用
     const summaryText = item.title ?? "概要は詳細ページをご確認ください。";
 
     const parseSlashSeparatedString = (
@@ -390,7 +388,6 @@ export default function SubsidySearchPage() {
             .filter(Boolean)
         : [];
 
-    // `acceptance_status` はAPIレスポンスにないので、日付から判断する
     let status = "不明";
     const now = new Date();
     const startDate = item.acceptance_start_datetime
@@ -427,7 +424,6 @@ export default function SubsidySearchPage() {
       status: status,
     };
   };
-  // ★★★ ここまでが修正箇所 ★★★
 
   const performSearch = useCallback(async (paramsToSearch: SearchParams) => {
     setIsLoading(true);
@@ -519,7 +515,6 @@ export default function SubsidySearchPage() {
 
   const totalPages = Math.ceil(totalResults / searchParams.limit);
 
-  // ... (JSX部分は変更なし) ...
   return (
     <div className="space-y-8">
       <header>
@@ -572,10 +567,11 @@ export default function SubsidySearchPage() {
                 詳細条件
               </h3>
               <div className="space-y-4">
+                {/* ▼▼▼ 修正箇所 1 ▼▼▼ */}
                 <div>
-                  <label className="block text-sm font-medium text-foreground-700 mb-1">
+                  <div className="block text-sm font-medium text-foreground-700 mb-1">
                     業種 (複数可)
-                  </label>
+                  </div>
                   <div className="max-h-48 overflow-y-auto space-y-1 border border-default-200 rounded-md p-3 bg-content1 shadow-sm">
                     <fieldset>
                       <legend className="sr-only">業種</legend>
@@ -601,9 +597,9 @@ export default function SubsidySearchPage() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-foreground-700 mb-1">
+                  <div className="block text-sm font-medium text-foreground-700 mb-1">
                     利用目的 (複数可)
-                  </label>
+                  </div>
                   <div className="max-h-48 overflow-y-auto space-y-1 border border-default-200 rounded-md p-3 bg-content1 shadow-sm">
                     <fieldset>
                       <legend className="sr-only">利用目的</legend>
@@ -613,7 +609,9 @@ export default function SubsidySearchPage() {
                         return (
                           <div key={opt.id}>
                             <Checkbox
-                              checked={searchParams.use_purpose?.includes(opt.name)}
+                              checked={searchParams.use_purpose?.includes(
+                                opt.name,
+                              )}
                               id={checkboxId}
                               label={opt.name}
                               name="use_purpose"
@@ -628,6 +626,7 @@ export default function SubsidySearchPage() {
                     </fieldset>
                   </div>
                 </div>
+                {/* ▲▲▲ 修正箇所 1 ▲▲▲ */}
                 <div>
                   <label
                     className="block text-sm font-medium text-foreground-700 mb-1"
@@ -635,13 +634,15 @@ export default function SubsidySearchPage() {
                   >
                     従業員規模
                   </label>
+                  {/* ▼▼▼ 修正箇所 2 ▼▼▼ */}
                   <Select
                     id="target_number_of_employees"
+                    label={undefined}
                     name="target_number_of_employees"
                     value={searchParams.target_number_of_employees}
                     onChange={handleFilterChange}
-                    label={undefined}
                   >
+                  {/* ▲▲▲ 修正箇所 2 ▲▲▲ */}
                     <option value="">指定なし</option>
                     {employeeSizeOptions.map((opt) => (
                       <option key={opt.id} value={opt.id}>
@@ -657,13 +658,15 @@ export default function SubsidySearchPage() {
                   >
                     対象地域
                   </label>
+                  {/* ▼▼▼ 修正箇所 3 ▼▼▼ */}
                   <Select
                     id="target_area_search"
+                    label={undefined}
                     name="target_area_search"
                     value={searchParams.target_area_search}
                     onChange={handleFilterChange}
-                    label={undefined}
                   >
+                  {/* ▲▲▲ 修正箇所 3 ▲▲▲ */}
                     <option value="">指定なし</option>
                     {regionOptions.map((opt) => (
                       <option key={opt.id} value={opt.id}>

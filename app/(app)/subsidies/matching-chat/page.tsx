@@ -66,8 +66,9 @@ const MatchingChatPage: React.FC = () => {
     },
   ]);
   const [inputText, setInputText] = useState("");
-  const [_companyInfo, _setCompanyInfo] = useState<CompanyInfo>({
-    // 型を明示
+  // ▼▼▼ 修正箇所 ▼▼▼
+  const [_companyInfo] = useState<CompanyInfo>({
+  // ▲▲▲ 修正箇所 ▲▲▲
     name: "株式会社テクノソリューション",
     industry: "IT・通信",
     employees: "25名",
@@ -541,9 +542,8 @@ const MatchingChatPage: React.FC = () => {
             {/* readdyのリンクはNext.jsのLinkコンポーネントに置き換えるか、通常のaタグで外部リンクとして扱う */}
             <a
               href="https://readdy.ai/home/b567d0ef-eefa-47ef-9459-956aa5b00bca/0c12e8a5-affc-450a-8c4d-289e039a2dba" // このリンクは開発環境では動作しない可能性あり
+              rel="noopener noreferrer"
               target="_blank" // 外部リンクの場合は target="_blank"
-              rel="noopener noreferrer" // セキュリティのため
-              // data-readdy="true" // これはreaddy.ai特有の属性かもしれません
             >
               <button className="w-full bg-success hover:bg-success-600 text-success-foreground font-medium py-3 px-4 rounded-md whitespace-nowrap cursor-pointer">
                 {" "}
@@ -690,11 +690,13 @@ const MatchingChatPage: React.FC = () => {
               >
                 閉じる
               </button>
+              {/* ▼▼▼ 修正箇所 ▼▼▼ */}
               <a
-                href="https://readdy.ai/home/b567d0ef-eefa-47ef-9459-956aa5b00bca/0c12e8a5-affc-450a-8c4d-289e039a2dba" // 同上
+                href="https://readdy.ai/home/b567d0ef-eefa-47ef-9459-956aa5b00bca/0c12e8a5-affc-450a-8c4d-289e039a2dba"
                 rel="noopener noreferrer"
                 target="_blank"
               >
+              {/* ▲▲▲ 修正箇所 ▲▲▲ */}
                 <button className="bg-success hover:bg-success-600 text-success-foreground font-medium py-2 px-4 rounded-md whitespace-nowrap cursor-pointer flex items-center">
                   <span className="mr-2">📄</span>
                   この補助金の申請書類作成に進む

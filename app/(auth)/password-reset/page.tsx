@@ -129,18 +129,20 @@ export default function PasswordResetPage() {
         )}
 
         <form className="space-y-6" onSubmit={handleSubmit}>
+          {/* ▼▼▼ 修正箇所 ▼▼▼ */}
           <Input
             required
             disabled={isLoading}
             label="メールアドレス"
             name="email" // name属性を追加
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setEmail(e.target.value)
-            } // onChangeを修正
             placeholder="your@email.com"
             type="email"
             value={email}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setEmail(e.target.value)
+            } // onChangeを修正
           />
+          {/* ▲▲▲ 修正箇所 ▲▲▲ */}
           <Button fullWidth color="primary" isLoading={isLoading} type="submit">
             リセットメールを送信
           </Button>
