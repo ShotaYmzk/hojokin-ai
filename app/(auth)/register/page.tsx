@@ -7,7 +7,26 @@ import Link from "next/link";
 import { Button, Input } from "@heroui/react";
 
 import { routes } from "@/config/routes";
-import { api } from "@/lib/api"; // APIクライアントをインポート
+import { AppLogo } from "@/components/common/AppLogo";
+
+// AlertComponent
+const Alert: React.FC<{
+  color: "danger" | "success";
+  children: React.ReactNode;
+  className?: string;
+}> = ({ color, children, className }) => {
+  const baseClasses = "p-4 rounded-md text-sm";
+  const colorClasses =
+    color === "danger"
+      ? "bg-danger-50 text-danger-700 border border-danger-200"
+      : "bg-success-50 text-success-700 border border-success-200";
+
+  return (
+    <div className={`${baseClasses} ${colorClasses} ${className}`}>
+      {children}
+    </div>
+  );
+};
 
 export default function Page() {
   const router = useRouter();
@@ -20,101 +39,139 @@ export default function Page() {
 
   // エラーメッセージとローディング状態を管理するState
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   // フォーム送信時の処理
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
+    setSuccess(null);
     setIsLoading(true);
 
     try {
-      // 以前作成したAPIクライアントのメソッドを呼び出す
-      // これにより内部的に /api/auth/register へのfetchリクエストが送られる
-      await api.auth.register({
-        registerRequest: {
+      console.log('Sending registration request:', { email, companyName }); // デバッグ用
+
+      // 修正: registerRequest でラップしない
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
           email,
           password,
-          // RegisterRequestの型を更新していないため、anyでキャスト
-          // 本来はopenapi.yamlを更新し、型を再生成するのが望ましい
-          companyName: companyName as any,
-          companyAddress: companyAddress as any,
-        },
+          companyName,
+          companyAddress,
+        }),
       });
 
-      // 成功したらログインページにリダイレクト
-      // TODO: 「登録ありがとうございます」のようなメッセージをToastなどで表示するとより親切
-      router.push(routes.auth.login + "?registered=true");
+      const data = await response.json();
+      console.log('Registration response:', data); // デバッグ用
 
-    } catch (e: any) {
-      // APIから返されたエラーメッセージを取得して表示
-      const errorData = await e.response?.json();
-      setError(errorData?.error || "不明なエラーが発生しました。");
-      console.error(e);
+      if (!response.ok) {
+        throw new Error(data.error || '登録に失敗しました');
+      }
+
+      // 成功した場合
+      setSuccess(data.message || '登録が完了しました！');
+      
+      // 2秒後にログインページにリダイレクト
+      setTimeout(() => {
+        router.push(routes.auth.login + "?registered=true");
+      }, 2000);
+
+    } catch (error: any) {
+      console.error('Registration error:', error);
+      setError(error.message || "不明なエラーが発生しました。");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-sm flex-col gap-6">
-      <div className="flex flex-col gap-2 text-center">
-        <h1 className="text-2xl font-semibold tracking-tight">アカウント登録</h1>
-        <p className="text-sm text-muted-foreground">
-          会社情報を入力して登録してください
-        </p>
-      </div>
-
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <Input
-          name="companyName"
-          label="会社名"
-          placeholder="株式会社〇〇"
-          value={companyName}
-          onValueChange={setCompanyName}
-          isRequired
-        />
-        <Input
-          name="companyAddress"
-          label="会社の所在地（任意）"
-          placeholder="東京都千代田区〇〇"
-          value={companyAddress}
-          onValueChange={setCompanyAddress}
-        />
-        <Input
-          name="email"
-          type="email"
-          label="メールアドレス"
-          placeholder="email@example.com"
-          value={email}
-          onValueChange={setEmail}
-          isRequired
-        />
-        <Input
-          name="password"
-          type="password"
-          label="パスワード"
-          placeholder="••••••••"
-          value={password}
-          onValueChange={setPassword}
-          isRequired
-        />
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 px-4 py-12">
+      <div className="w-full max-w-md p-8 space-y-6 bg-background shadow-2xl rounded-xl">
+        <div className="flex flex-col items-center">
+          <Link className="mb-6" href="/">
+            <AppLogo className="text-primary" size={48} />
+          </Link>
+          <h1 className="text-3xl font-bold text-center text-foreground">
+            アカウント登録
+          </h1>
+          <p className="mt-2 text-center text-sm text-foreground-500">
+            会社情報を入力して登録してください
+          </p>
+        </div>
 
         {error && (
-          <p className="text-sm text-center text-red-500">{error}</p>
+          <Alert color="danger">
+            {error}
+          </Alert>
         )}
 
-        <Button type="submit" color="primary" className="w-full" disabled={isLoading}>
-          {isLoading ? "登録中..." : "同意して登録"}
-        </Button>
-      </form>
+        {success && (
+          <Alert color="success">
+            {success}
+          </Alert>
+        )}
 
-      <p className="text-center text-sm text-muted-foreground">
-        アカウントをお持ちですか？{" "}
-        <Link href={routes.auth.login} className="underline">
-          ログインはこちら
-        </Link>
-      </p>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <Input
+            name="companyName"
+            label="会社名"
+            placeholder="株式会社〇〇"
+            value={companyName}
+            onValueChange={setCompanyName}
+            isRequired
+            disabled={isLoading}
+          />
+          <Input
+            name="companyAddress"
+            label="会社の所在地（任意）"
+            placeholder="東京都千代田区〇〇"
+            value={companyAddress}
+            onValueChange={setCompanyAddress}
+            disabled={isLoading}
+          />
+          <Input
+            name="email"
+            type="email"
+            label="メールアドレス"
+            placeholder="email@example.com"
+            value={email}
+            onValueChange={setEmail}
+            isRequired
+            disabled={isLoading}
+          />
+          <Input
+            name="password"
+            type="password"
+            label="パスワード"
+            placeholder="••••••••"
+            value={password}
+            onValueChange={setPassword}
+            isRequired
+            disabled={isLoading}
+            description="6文字以上で入力してください"
+          />
+
+          <Button 
+            type="submit" 
+            color="primary" 
+            className="w-full" 
+            isLoading={isLoading}
+            disabled={isLoading}
+          >
+            {isLoading ? "登録中..." : "同意して登録"}
+          </Button>
+        </form>
+
+        <p className="text-center text-sm text-muted-foreground">
+          アカウントをお持ちですか？{" "}
+          <Link href={routes.auth.login} className="underline">
+            ログインはこちら
+          </Link>
+        </p>
+      </div>
     </div>
   );
 }
