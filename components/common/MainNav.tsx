@@ -1,149 +1,51 @@
 // File: /components/common/MainNav.tsx
-"use client"; // ナビゲーションの状態管理やフック使用のため
+"use client";
 
-import {
-  Navbar as HeroUINavbar,
-  NavbarContent,
-  NavbarMenu,
-  NavbarMenuToggle,
-  NavbarBrand,
-  NavbarItem,
-  NavbarMenuItem,
-} from "@heroui/navbar";
-import { Button } from "@heroui/button";
-import { Link } from "@heroui/link";
-import NextLink from "next/link";
-import clsx from "clsx";
-import { usePathname } from "next/navigation"; // 現在のパスを取得
-
+import { AppLogo } from "@/components/common/AppLogo";
 import { siteConfig } from "@/config/site";
-import { ThemeSwitch } from "@/components/common/ThemeSwitch"; // パス修正
-import { AppLogo } from "@/components/common/AppLogo"; // ロゴコンポーネントを作成した場合
-// import { GithubIcon, ... } from "@/components/icons"; // 必要に応じて
+import { type NavItem } from "@/types";
+import { cn } from "@/utils/cn";
+import { Link } from "@nextui-org/react";
+import NextLink from "next/link";
+import { usePathname } from "next/navigation";
 
-// 仮の認証状態フック (実際にはAuthContextやライブラリから取得)
-const useAuth = () => ({ isAuthenticated: true, user: { name: "田中太郎" } }); // ここを実際の認証ロジックに置き換える
+interface MainNavProps {
+  items?: NavItem[];
+}
 
-export const MainNav = () => {
+export function MainNav({ items }: MainNavProps) {
   const pathname = usePathname();
-  const { isAuthenticated } = useAuth(); // 認証状態を取得
-
-  // 表示するナビゲーションアイテムを決定
-  // ここでは簡略化のため、認証済みなら navItems, 未認証なら authNavItems を使う例
-  // 実際には (auth) レイアウトと (app) レイアウトで異なるナビゲーションを描画する方が良い場合もある
-  const currentNavItems = isAuthenticated ? siteConfig.navItems : []; // (app) レイアウトで mainNavItems を使用
-  const currentMenuNavItems = isAuthenticated
-    ? siteConfig.navMenuItems
-    : siteConfig.authNavItems;
 
   return (
-    <HeroUINavbar maxWidth="xl" position="sticky">
-      <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
-        <NavbarBrand as="li" className="gap-3 max-w-fit">
-          <NextLink
-            className="flex justify-start items-center gap-2"
-            href={isAuthenticated ? "/dashboard" : "/"}
-          >
-            <AppLogo /> {/* AppLogo コンポーネントを使用 */}
-            <p className="font-bold text-inherit">
-              {siteConfig.name.split(" ")[0]}
-            </p>{" "}
-            {/* "補助金・助成金アシスタントAI" から "補助金・助成金アシスタントAI" の部分だけなど */}
-          </NextLink>
-        </NavbarBrand>
-        <ul className="hidden lg:flex gap-4 justify-start ml-2">
-          {currentNavItems.map((item) => (
-            <NavbarItem key={item.href} isActive={pathname === item.href}>
-              <NextLink
-                className={clsx(
-                  "data-[active=true]:text-primary data-[active=true]:font-medium",
-                  "hover:text-primary transition-colors",
-                )}
-                color="foreground"
-                href={item.href}
-              >
-                {item.label}
-              </NextLink>
-            </NavbarItem>
-          ))}
-        </ul>
-      </NavbarContent>
+    <div className="flex gap-6 md:gap-10">
+      {/* ★修正点: AppLogoをLinkで囲むのをやめ、AppLogo自身がリンクとして機能するようにしました。 */}
+      {/* レスポンシブ表示を維持するため、ラッパーとしてdivを使用します。 */}
+      <div className="hidden items-center gap-2 md:flex">
+        <AppLogo />
+      </div>
 
-      <NavbarContent
-        className="hidden sm:flex basis-1/5 sm:basis-full"
-        justify="end"
-      >
-        <NavbarItem className="hidden sm:flex gap-2">
-          {/* 外部リンクは必要に応じて siteConfig から読み込む */}
-          {/* <Link isExternal aria-label="Github" href={siteConfig.links.github}>
-            <GithubIcon className="text-default-500" />
-          </Link> */}
-          <ThemeSwitch />
-        </NavbarItem>
-        {isAuthenticated && (
-          <NavbarItem className="hidden md:flex">
-            {/* ユーザー名やログアウトボタンなどをここに配置 */}
-            {/* 例: <Button as={Link} href="/profile">プロフィール</Button> */}
-            <Button
-              as={NextLink}
-              color="danger"
-              href="/logout" // ログアウト処理へのパス
-              variant="ghost"
-            >
-              ログアウト
-            </Button>
-          </NavbarItem>
-        )}
-        {!isAuthenticated && (
-          <NavbarItem className="hidden md:flex gap-2">
-            <Button
-              as={NextLink}
-              color="primary"
-              href="/login"
-              variant="bordered"
-            >
-              ログイン
-            </Button>
-            <Button
-              as={NextLink}
-              color="primary"
-              href="/register"
-              variant="flat"
-            >
-              新規登録
-            </Button>
-          </NavbarItem>
-        )}
-      </NavbarContent>
-
-      <NavbarContent className="sm:hidden basis-1 pl-4" justify="end">
-        {/* <Link isExternal aria-label="Github" href={siteConfig.links.github}>
-          <GithubIcon className="text-default-500" />
-        </Link> */}
-        <ThemeSwitch />
-        <NavbarMenuToggle />
-      </NavbarContent>
-
-      <NavbarMenu>
-        {/* searchInput は補助金検索ページなどに配置するため、ここでは削除 */}
-        <div className="mx-4 mt-2 flex flex-col gap-2">
-          {currentMenuNavItems.map((item, index) => (
-            <NavbarMenuItem
-              key={`${item.href}-${index}`}
-              isActive={pathname === item.href}
-            >
-              <Link
-                as={NextLink} // NextLink を使用
-                color={pathname === item.href ? "primary" : "foreground"}
-                href={item.href}
-                size="lg"
-              >
-                {item.label}
-              </Link>
-            </NavbarMenuItem>
-          ))}
-        </div>
-      </NavbarMenu>
-    </HeroUINavbar>
+      {items?.length ? (
+        <nav className="hidden gap-6 md:flex">
+          {items?.map(
+            (item, index) =>
+              item.href && (
+                <Link
+                  key={index}
+                  as={NextLink}
+                  className={cn(
+                    "flex items-center text-lg font-semibold text-muted-foreground sm:text-sm",
+                    item.href.startsWith(`/${pathname.split("/")[1]}`) &&
+                      "text-foreground",
+                    item.disabled && "cursor-not-allowed opacity-80",
+                  )}
+                  href={item.href}
+                >
+                  {item.title}
+                </Link>
+              ),
+          )}
+        </nav>
+      ) : null}
+    </div>
   );
-};
+}

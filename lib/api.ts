@@ -41,3 +41,21 @@ export async function searchSubsidies(
 
   return response.json();
 }
+
+export const api = {
+  auth: {
+    register: async ({ registerRequest }: { registerRequest: { email: string; password: string; companyName?: string; companyAddress?: string } }) => {
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(registerRequest),
+      });
+      
+      if (!response.ok) {
+        throw response;
+      }
+      
+      return response.json();
+    },
+  },
+};
