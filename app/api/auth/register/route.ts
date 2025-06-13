@@ -1,120 +1,113 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-// auth-helpers-nextjsの代わりに@supabase/ssrからインポートします
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
-
-// openapi-generatorで生成された型定義をインポートします。
-// パスは実際のプロジェクト構造に合わせて確認・調整してください。
 import type { RegisterRequest } from '@/frontend/api-client/models/RegisterRequest';
-
-// Supabaseの管理者権限クライアントを作成します。
-// このクライアントは、会社情報登録失敗時にユーザーを削除するクリーンアップ処理で使用します。
-// 安全なサーバーサイドでのみ使用してください。
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!, // サービスロールキーを環境変数から読み込み
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false
-    }
-  }
-);
-
-
-// POST /api/auth/register
 export async function POST(request: Request) {
-  // RegisterRequest型に、不足しているプロパティを交差型(&)で追加します。
-  const body: RegisterRequest & { companyName?: string; companyAddress?: string } = await request.json();
-  const { email, password, companyName, companyAddress } = body;
-
-  // 必須項目のバリデーション
-  if (!email || !password || !companyName) {
-    return NextResponse.json(
-      { error: 'メールアドレス、パスワード、会社名は必須です' },
-      { status: 400 }
-    );
-  }
-
-  const cookieStore = cookies();
-
-  // 【修正点】エラーメッセージに基づき、cookieStoreをPromiseとして扱い、
-  //           各cookieメソッドをasyncにしてawaitを追加します。
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        async get(name: string) {
-          const store = await cookieStore;
-          return store.get(name)?.value;
-        },
-        async set(name: string, value: string, options: CookieOptions) {
-          const store = await cookieStore;
-          store.set({ name, value, ...options });
-        },
-        async remove(name: string, options: CookieOptions) {
-          const store = await cookieStore;
-          store.set({ name, value: '', ...options });
-        },
-      },
+  // API全体の処理をtry...catchで囲み、予期せぬエラーを捕捉します
+  try {
+    // 処理の最初に、必要な環境変数がすべて存在するかをチェックします
+    if (
+      !process.env.NEXT_PUBLIC_SUPABASE_URL ||
+      !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+      !process.env.SUPABASE_SERVICE_ROLE_KEY
+    ) {
+      console.error("Error: Missing Supabase environment variables.");
+      return NextResponse.json(
+        { error: "サーバーの内部構成に問題があります。" },
+        { status: 500 }
+      );
     }
-  );
 
-  // 1. Supabase Authenticationでユーザーを作成 (サインアップ)
-  // デフォルトでは、ユーザーは確認メールのリンクをクリックするまでステータスが確定しません。
-  const { data: authData, error: authError } = await supabase.auth.signUp({
-    email,
-    password,
-  });
-
-  // サインアップ処理でエラーが発生した場合
-  if (authError || !authData.user) {
-    console.error('Supabase auth sign up error:', authError);
-    return NextResponse.json(
-      { error: authError?.message || 'ユーザーの作成に失敗しました' },
-      { status: authError?.status || 500 }
+    // 環境変数のチェック後に管理者クライアントを初期化します
+    const supabaseAdmin = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY,
+      {
+        auth: { autoRefreshToken: false, persistSession: false },
+      }
     );
-  }
 
-  const userId = authData.user.id;
+    const body: RegisterRequest & { companyName?: string; companyAddress?: string } = await request.json();
+    const { email, password, companyName, companyAddress } = body;
 
-  // 2. 作成したユーザーのIDに紐づけて`companies`テーブルに会社情報を保存
-  const { error: companyError } = await supabase
-    .from('companies')
-    .insert({
-      user_id: userId,
-      name: companyName,
-      address: companyAddress, // companyAddressは任意
+    if (!email || !password || !companyName) {
+      return NextResponse.json(
+        { error: 'メールアドレス、パスワード、会社名は必須です' },
+        { status: 400 }
+      );
+    }
+
+    const cookieStore = cookies();
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+      {
+        cookies: {
+          // ★修正点：各メソッドをasync関数に変更し、cookieStoreをawaitで解決します
+          async get(name: string) {
+            const store = await cookieStore;
+            return store.get(name)?.value;
+          },
+          async set(name: string, value: string, options: CookieOptions) {
+            const store = await cookieStore;
+            store.set({ name, value, ...options });
+          },
+          async remove(name: string, options: CookieOptions) {
+            const store = await cookieStore;
+            store.set({ name, value: '', ...options });
+          },
+        },
+      }
+    );
+
+    const { data: authData, error: authError } = await supabase.auth.signUp({
+      email,
+      password,
     });
 
-  // 会社情報の保存でエラーが発生した場合
-  if (companyError) {
-    console.error('Supabase insert company profile error:', companyError);
+    if (authError || !authData.user) {
+      console.error('Supabase auth sign up error:', authError);
+      return NextResponse.json(
+        { error: authError?.message || 'ユーザーの作成に失敗しました' },
+        { status: authError?.status || 500 }
+      );
+    }
 
-    // ★クリーンアップ処理：作成済みの認証ユーザーを削除する
-    const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(userId);
-    if (deleteError) {
-        // クリーンアップ自体に失敗した場合は、重大なエラーとしてログに残す
+    const userId = authData.user.id;
+
+    const { error: companyError } = await supabase
+      .from('companies')
+      .insert({ user_id: userId, name: companyName, address: companyAddress });
+
+    if (companyError) {
+      console.error('Supabase insert company profile error:', companyError);
+
+      const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(userId);
+      if (deleteError) {
         console.error(`CRITICAL: Failed to clean up auth user ${userId}.`, deleteError);
-    } else {
+      } else {
         console.log(`Cleaned up auth user due to company registration failure: ${userId}`);
+      }
+
+      return NextResponse.json(
+        { error: companyError.message || '会社情報の保存に失敗しました' },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json(
-      { error: companyError.message || '会社情報の保存に失敗しました' },
+      { message: 'ユーザー登録が完了しました。確認メールを確認してください。', userId: authData.user.id },
+      { status: 201 }
+    );
+
+  } catch (error) {
+    // 予期せぬエラーが発生した場合のログ出力
+    console.error("An unexpected error occurred in /api/auth/register:", error);
+    return NextResponse.json(
+      { error: "予期せぬ内部サーバーエラーが発生しました。" },
       { status: 500 }
     );
   }
-
-  // すべて成功した場合
-  return NextResponse.json(
-    {
-      message: 'ユーザー登録が完了しました。確認メールを確認してください。',
-      userId: authData.user.id,
-    },
-    { status: 201 }
-  );
 }

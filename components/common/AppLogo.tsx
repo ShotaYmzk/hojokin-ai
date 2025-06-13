@@ -5,7 +5,11 @@ import { Link } from "@nextui-org/react";
 import { type HTMLNextUIProps } from "@nextui-org/react";
 import NextLink from "next/link";
 
-export const AppLogo = ({ className }: HTMLNextUIProps<"svg">) => (
+interface AppLogoProps extends HTMLNextUIProps<"svg"> {
+  size?: number;
+}
+
+export const AppLogo = ({ className, size = 36 }: AppLogoProps) => (
   <Link
     as={NextLink}
     className="flex items-center gap-2"
@@ -16,9 +20,9 @@ export const AppLogo = ({ className }: HTMLNextUIProps<"svg">) => (
     <svg
       className={className}
       fill="none"
-      height="36"
+      height={size}
       viewBox="0 0 32 32"
-      width="36"
+      width={size}
     >
       <path
         clipRule="evenodd"

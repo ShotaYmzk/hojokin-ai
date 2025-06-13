@@ -2,16 +2,14 @@
 "use client";
 
 import React, { useState, FormEvent } from "react";
-import { useRouter } from "next/navigation"; // next/navigationからインポート
-import { Input } from "@heroui/input"; // HeroUIのInputを使用
-import { Button } from "@heroui/button"; // HeroUIのButtonを使用
-import Link from "next/link"; // Next.jsのLinkコンポーネント
+import { useRouter } from "next/navigation";
+import { Input } from "@heroui/input";
+import { Button } from "@heroui/button";
+import Link from "next/link";
 
-import { AppLogo } from "@/components/common/AppLogo"; // 作成したAppLogoコンポーネント
-// import { Alert } from "@heroui/react"; // エラー表示用にAlertコンポーネントがあれば (なければ自作)
-// import { MailIcon, LockClosedIcon } from "@heroicons/react/24/outline"; // Heroiconsなどからアイコンをインポートする場合
+import { AppLogo } from "@/components/common/AppLogo";
 
-// 仮のAlertコンポーネント (HeroUIにAlertがなければ)
+// 仮のAlertコンポーネント
 const Alert: React.FC<{
   color: "danger" | "success";
   children: React.ReactNode;
@@ -42,60 +40,39 @@ export default function LoginPage() {
     setIsLoading(true);
     setError(null);
 
-    // バリデーション (簡易)
+    // バリデーション
     if (!email || !password) {
       setError("メールアドレスとパスワードを入力してください。");
       setIsLoading(false);
-
       return;
     }
 
-    // ★デバッグ用ログイン
-    if (email === "debuguser@example.com" && password === "password123") {
-      localStorage.setItem("isLoggedIn", "true");
-      localStorage.setItem(
-        "user",
-        JSON.stringify({
-          name: "デバッグ ユーザー",
-          email: "debuguser@example.com",
-          // 他に必要なユーザー情報があれば追加
-        }),
-      );
-      // ログイン成功後、1秒待ってからダッシュボードに遷移 (ローディング表示の確認用)
-      setTimeout(() => {
-        router.push("/dashboard");
-      }, 1000);
-
-      return; // 通常のAPIコールは行わない
-    }
-
-    // 実際のAPIコール (バックエンドが実装されたらこちらを有効化)
     try {
-      // const response = await fetch('/api/auth/login', { // 実際のAPIエンドポイント
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ email, password }),
-      // });
+      // 実際のAPIコール
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
 
-      // if (!response.ok) {
-      //   const errorData = await response.json();
-      //   throw new Error(errorData.message || 'ログインに失敗しました。');
-      // }
+      const data = await response.json();
 
-      // const data = await response.json();
-      // localStorage.setItem('isLoggedIn', 'true');
-      // localStorage.setItem('authToken', data.token); // トークンを保存
-      // localStorage.setItem('user', JSON.stringify(data.user)); // ユーザー情報を保存
+      if (!response.ok) {
+        throw new Error(data.error || 'ログインに失敗しました。');
+      }
 
-      // setTimeout(() => {
-      //   router.push('/dashboard');
-      // }, 500);
-      setError(
-        "通常のログイン処理は未実装です。デバッグユーザーでログインしてください。",
-      );
-      setIsLoading(false);
+      // ログイン成功時の処理
+      localStorage.setItem('isLoggedIn', 'true');
+      localStorage.setItem('authToken', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+
+      // ダッシュボードにリダイレクト
+      router.push('/dashboard');
+
     } catch (err: any) {
-      setError(err.message || "ログイン中にエラーが発生しました。");
+      console.error('Login error:', err);
+      setError(err.message || 'ログイン中にエラーが発生しました。');
+    } finally {
       setIsLoading(false);
     }
   };
@@ -149,14 +126,9 @@ export default function LoginPage() {
           </div>
 
           <div className="flex items-center justify-between">
-            {/* <div className="flex items-center">
-              <Checkbox size="sm" classNames={{label: "text-sm text-foreground-500"}}>
-                ログイン状態を保持する
-              </Checkbox>
-            </div> */}
             <Link
               className="text-sm font-medium text-primary hover:text-primary-focus"
-              href="/password-reset" // パスワードリセットページへのリンク
+              href="/password-reset"
             >
               パスワードをお忘れですか？
             </Link>
@@ -170,7 +142,7 @@ export default function LoginPage() {
             size="lg"
             type="submit"
           >
-            {isLoading ? "ログイン処理中..." : "ログイン"}
+            {isLoading ? "ログイン中..." : "ログイン"}
           </Button>
         </form>
 
@@ -178,15 +150,11 @@ export default function LoginPage() {
           アカウントをお持ちでないですか？{" "}
           <Link
             className="font-medium text-primary hover:text-primary-focus"
-            href="/register" // 新規登録ページへのリンク
+            href="/register"
           >
             新規登録はこちら
           </Link>
         </p>
-      </div>
-      <div className="mt-6 text-center text-xs text-gray-400">
-        <p>デバッグ用アカウント:</p>
-        <p>Email: debuguser@example.com / Pass: password123</p>
       </div>
     </div>
   );

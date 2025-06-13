@@ -2,37 +2,30 @@
 "use client";
 
 import React, { useState, useEffect, FormEvent } from "react";
-// HeroUIコンポーネントのインポート (適宜実際のパスに修正)
-// import { Input } from "@heroui/input";
-// import { Textarea } from "@heroui/input"; // Textareaが別の場合
-// import { Select, SelectItem } from "@heroui/react"; // Selectコンポーネント
-// import { Button } from "@heroui/button";
-// import { Card, CardHeader, CardBody, CardFooter } from "@heroui/card";
-// import { Switch } from "@heroui/switch";
 
-// 仮の型定義 (より詳細な型は /types/domain.ts などで定義)
+// 型定義
 interface CompanyProfile {
   companyName: string;
-  industry: string; // 業種（大分類）
-  subIndustry?: string; // 業種（小分類）
+  industry: string;
+  subIndustry?: string;
   postalCode: string;
   prefecture: string;
   city: string;
-  addressLine1: string; // 市区町村以降の住所
-  addressLine2?: string; // 建物名など
-  representativeName: string; // 代表者名
+  addressLine1: string;
+  addressLine2?: string;
+  representativeName: string;
   phoneNumber: string;
-  email: string; // 担当者メールアドレス
+  email: string;
   website?: string;
-  establishmentYear: string; // 設立年
-  employeeCountCategory: string; // 従業員数カテゴリ (例: "1-5人", "6-20人")
-  capitalAmount: string; // 資本金 (万円)
-  annualSales?: string; // 直近売上高 (万円)
-  businessDescription: string; // 事業内容
-  isSmallBusiness: boolean; // 中小企業基本法上の定義に該当するか
+  establishmentYear: string;
+  employeeCountCategory: string;
+  capitalAmount: string;
+  annualSales?: string;
+  businessDescription: string;
+  isSmallBusiness: boolean;
 }
 
-// 仮のUIコンポーネント (HeroUIの実際のコンポーネントに置き換えてください)
+// 仮のUIコンポーネント
 const Input: React.FC<any> = ({
   label,
   name,
@@ -64,6 +57,7 @@ const Input: React.FC<any> = ({
     />
   </div>
 );
+
 const Textarea: React.FC<any> = ({
   label,
   name,
@@ -95,6 +89,7 @@ const Textarea: React.FC<any> = ({
     />
   </div>
 );
+
 const Select: React.FC<any> = ({
   label,
   name,
@@ -125,6 +120,7 @@ const Select: React.FC<any> = ({
     </select>
   </div>
 );
+
 const Button: React.FC<any> = ({
   children,
   onClick,
@@ -151,6 +147,7 @@ const Button: React.FC<any> = ({
     </button>
   );
 };
+
 const Card: React.FC<any> = ({ children, className }) => (
   <div
     className={`bg-background shadow-lg rounded-xl border border-divider ${className}`}
@@ -158,12 +155,15 @@ const Card: React.FC<any> = ({ children, className }) => (
     {children}
   </div>
 );
+
 const CardHeader: React.FC<any> = ({ children, className }) => (
   <div className={`p-6 border-b border-divider ${className}`}>{children}</div>
 );
+
 const CardBody: React.FC<any> = ({ children, className }) => (
   <div className={`p-6 ${className}`}>{children}</div>
 );
+
 const CardFooter: React.FC<any> = ({ children, className }) => (
   <div
     className={`p-6 border-t border-divider bg-content2 rounded-b-xl ${className}`}
@@ -171,6 +171,7 @@ const CardFooter: React.FC<any> = ({ children, className }) => (
     {children}
   </div>
 );
+
 const Switch: React.FC<any> = ({
   label,
   checked,
@@ -200,7 +201,7 @@ const Switch: React.FC<any> = ({
   </label>
 );
 
-// 業種や都道府県などの選択肢 (実際にはAPIから取得するか、定数ファイルで管理)
+// 選択肢データ
 const industries = [
   "卸売業、小売業",
   "製造業",
@@ -223,55 +224,17 @@ const industries = [
   "公務（他に分類されるものを除く）",
   "分類不能の産業",
 ];
+
 const prefectures = [
-  "北海道",
-  "青森県",
-  "岩手県",
-  "宮城県",
-  "秋田県",
-  "山形県",
-  "福島県",
-  "茨城県",
-  "栃木県",
-  "群馬県",
-  "埼玉県",
-  "千葉県",
-  "東京都",
-  "神奈川県",
-  "新潟県",
-  "富山県",
-  "石川県",
-  "福井県",
-  "山梨県",
-  "長野県",
-  "岐阜県",
-  "静岡県",
-  "愛知県",
-  "三重県",
-  "滋賀県",
-  "京都府",
-  "大阪府",
-  "兵庫県",
-  "奈良県",
-  "和歌山県",
-  "鳥取県",
-  "島根県",
-  "岡山県",
-  "広島県",
-  "山口県",
-  "徳島県",
-  "香川県",
-  "愛媛県",
-  "高知県",
-  "福岡県",
-  "佐賀県",
-  "長崎県",
-  "熊本県",
-  "大分県",
-  "宮崎県",
-  "鹿児島県",
-  "沖縄県",
-]; // 全て列挙
+  "北海道", "青森県", "岩手県", "宮城県", "秋田県", "山形県", "福島県",
+  "茨城県", "栃木県", "群馬県", "埼玉県", "千葉県", "東京都", "神奈川県",
+  "新潟県", "富山県", "石川県", "福井県", "山梨県", "長野県", "岐阜県",
+  "静岡県", "愛知県", "三重県", "滋賀県", "京都府", "大阪府", "兵庫県",
+  "奈良県", "和歌山県", "鳥取県", "島根県", "岡山県", "広島県", "山口県",
+  "徳島県", "香川県", "愛媛県", "高知県", "福岡県", "佐賀県", "長崎県",
+  "熊本県", "大分県", "宮崎県", "鹿児島県", "沖縄県",
+];
+
 const employeeCategories = [
   "1～5人",
   "6～20人",
@@ -299,43 +262,38 @@ export default function CompanyProfilePage() {
     isSmallBusiness: true,
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [isEditing, setIsEditing] = useState(false); // 編集モードの切り替え
+  const [isEditing, setIsEditing] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
   const [apiSuccess, setApiSuccess] = useState<string | null>(null);
 
+  // 企業情報を取得
   useEffect(() => {
-    // APIから企業情報を取得する処理
     const fetchProfile = async () => {
       setIsLoading(true);
       setApiError(null);
+      
       try {
-        // const response = await fetch('/api/company/profile'); // 仮のAPIエンドポイント
-        // if (!response.ok) throw new Error('企業情報の取得に失敗しました。');
-        // const data = await response.json();
-        // setProfile(data);
-        // ダミーデータで初期化 (実際にはAPIレスポンス)
-        const dummyProfile: CompanyProfile = {
-          companyName: "株式会社サンプル商事",
-          industry: "卸売業、小売業",
-          postalCode: "100-0001",
-          prefecture: "東京都",
-          city: "千代田区",
-          addressLine1: "丸の内1-1-1",
-          representativeName: "山田 太郎",
-          phoneNumber: "03-1234-5678",
-          email: "info@sample-shoji.co.jp",
-          website: "https://sample-shoji.co.jp",
-          establishmentYear: "2010",
-          employeeCountCategory: "21～50人",
-          capitalAmount: "1000",
-          annualSales: "50000",
-          businessDescription:
-            "各種商品の卸売および小売業。特に地域産品の販路拡大に注力。",
-          isSmallBusiness: true,
-        };
+        const response = await fetch('/api/company/profile', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+          },
+        });
 
-        setProfile(dummyProfile);
-        setIsEditing(false); // 初期状態は表示モード
+        if (!response.ok) {
+          if (response.status === 401) {
+            // 認証エラーの場合はログインページにリダイレクト
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('user');
+            window.location.href = '/login';
+            return;
+          }
+          throw new Error('企業情報の取得に失敗しました。');
+        }
+
+        const data = await response.json();
+        setProfile(data);
+        setIsEditing(false);
       } catch (error: any) {
         setApiError(error.message);
       } finally {
@@ -355,7 +313,6 @@ export default function CompanyProfilePage() {
 
     if (type === "checkbox") {
       const { checked } = e.target as HTMLInputElement;
-
       setProfile((prev) => ({ ...prev, [name]: checked }));
     } else {
       setProfile((prev) => ({ ...prev, [name]: value }));
@@ -367,19 +324,34 @@ export default function CompanyProfilePage() {
     setIsLoading(true);
     setApiError(null);
     setApiSuccess(null);
+    
     try {
-      // const response = await fetch('/api/company/profile', { // 仮のAPIエンドポイント
-      //   method: 'PUT', // または POST
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(profile),
-      // });
-      // if (!response.ok) {
-      //   const errorData = await response.json();
-      //   throw new Error(errorData.message || '企業情報の保存に失敗しました。');
-      // }
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // APIコールをシミュレート
+      const response = await fetch('/api/company/profile', {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+        },
+        body: JSON.stringify(profile),
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          // 認証エラーの場合はログインページにリダイレクト
+          localStorage.removeItem('isLoggedIn');
+          localStorage.removeItem('authToken');
+          localStorage.removeItem('user');
+          window.location.href = '/login';
+          return;
+        }
+        const errorData = await response.json();
+        throw new Error(errorData.error || '企業情報の保存に失敗しました。');
+      }
+
+      const updatedProfile = await response.json();
+      setProfile(updatedProfile);
       setApiSuccess("企業情報を保存しました。");
-      setIsEditing(false); // 保存後は表示モードに戻る
+      setIsEditing(false);
     } catch (error: any) {
       setApiError(error.message);
     } finally {
@@ -388,7 +360,6 @@ export default function CompanyProfilePage() {
   };
 
   if (isLoading && !isEditing) {
-    // 初回ロード時
     return <div className="text-center py-10">企業情報を読み込み中...</div>;
   }
 
@@ -624,7 +595,9 @@ export default function CompanyProfilePage() {
               <Button
                 disabled={isLoading}
                 onClick={() => {
-                  setIsEditing(false); /* TODO: 変更をリセットする処理 */
+                  setIsEditing(false);
+                  setApiError(null);
+                  setApiSuccess(null);
                 }}
               >
                 キャンセル
