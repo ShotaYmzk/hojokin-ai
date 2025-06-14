@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // レスポンス用にデータを変換
+    // レスポンス用にデータを変換（新しいスキーマに対応）
     const companyProfile = {
       companyName: company.name || '',
       industry: company.industry || '',
@@ -146,7 +146,7 @@ export async function PUT(request: NextRequest) {
     // リクエストボディを取得
     const body = await request.json();
     
-    // データベース用にフィールド名を変換
+    // データベース用にフィールド名を変換（新しいスキーマに対応）
     const companyData = {
       user_id: user.id,
       name: body.companyName,

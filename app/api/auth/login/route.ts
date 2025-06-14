@@ -53,19 +53,31 @@ export async function POST(request: Request) {
       );
     }
 
-    // ユーザー情報を取得
+    // 企業情報を取得（新しいスキーマに対応）
     const { data: profile } = await supabase
       .from('companies')
-      .select('name')
+      .select('name, representative_name')
       .eq('user_id', authData.user.id)
       .single();
+
+    // ユーザー名の決定（優先順位: representative_name > company name > user metadata > email）
+    let userName = 'ユーザー';
+    if (profile?.representative_name) {
+      userName = profile.representative_name;
+    } else if (profile?.name) {
+      userName = profile.name;
+    } else if (authData.user.user_metadata?.name) {
+      userName = authData.user.user_metadata.name;
+    } else if (authData.user.email) {
+      userName = authData.user.email.split('@')[0];
+    }
 
     // レスポンス
     return NextResponse.json({
       token: authData.session?.access_token,
       user: {
         id: authData.user.id,
-        name: profile?.name || authData.user.user_metadata?.name || 'ユーザー',
+        name: userName,
         email: authData.user.email,
       },
     });

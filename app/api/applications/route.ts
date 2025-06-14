@@ -138,7 +138,7 @@ export async function POST(request: NextRequest) {
     // リクエストボディを取得
     const body = await request.json();
     
-    // 申請データを作成
+    // 申請データを作成（新しいスキーマに対応）
     const applicationData = {
       user_id: user.id,
       company_id: company.id,
@@ -188,4 +188,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-

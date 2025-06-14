@@ -1,4 +1,4 @@
-// File: /app/(auth)/register/page.tsx
+// app/(auth)/register/page.tsx
 "use client";
 
 import { useState } from "react";
@@ -35,6 +35,7 @@ export default function Page() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [companyName, setCompanyName] = useState("");
+  const [representativeName, setRepresentativeName] = useState("");
   const [companyAddress, setCompanyAddress] = useState("");
 
   // エラーメッセージとローディング状態を管理するState
@@ -50,9 +51,14 @@ export default function Page() {
     setIsLoading(true);
 
     try {
-      console.log('Sending registration request:', { email, companyName }); // デバッグ用
+      console.log('Sending registration request:', { 
+        email, 
+        companyName,
+        representativeName,
+        hasPassword: !!password,
+        hasCompanyAddress: !!companyAddress 
+      }); // デバッグ用
 
-      // 修正: registerRequest でラップしない
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -60,6 +66,7 @@ export default function Page() {
           email,
           password,
           companyName,
+          representativeName,
           companyAddress,
         }),
       });
@@ -68,11 +75,19 @@ export default function Page() {
       console.log('Registration response:', data); // デバッグ用
 
       if (!response.ok) {
-        throw new Error(data.error || '登録に失敗しました');
+        // サーバーからの詳細なエラーメッセージを表示
+        const errorMessage = data.error || '登録に失敗しました';
+        const errorDetails = data.details ? ` (詳細: ${data.details})` : '';
+        throw new Error(errorMessage + errorDetails);
       }
 
       // 成功した場合
       setSuccess(data.message || '登録が完了しました！');
+      
+      // メール確認が必要な場合の案内
+      if (data.emailConfirmationRequired) {
+        setSuccess(prev => `${prev} 確認メールをお送りしましたので、メールボックスをご確認ください。`);
+      }
       
       // 2秒後にログインページにリダイレクト
       setTimeout(() => {
@@ -125,9 +140,17 @@ export default function Page() {
             disabled={isLoading}
           />
           <Input
+            name="representativeName"
+            label="代表者名"
+            placeholder="山田 太郎"
+            value={representativeName}
+            onValueChange={setRepresentativeName}
+            disabled={isLoading}
+          />
+          <Input
             name="companyAddress"
             label="会社の所在地（任意）"
-            placeholder="東京都千代田区〇〇"
+            placeholder="東京都千代田区〇〇1-1-1"
             value={companyAddress}
             onValueChange={setCompanyAddress}
             disabled={isLoading}

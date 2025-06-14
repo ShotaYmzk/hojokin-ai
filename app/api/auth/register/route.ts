@@ -8,7 +8,7 @@ import { createClient } from '@supabase/supabase-js';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!, // サービスロールキーを環境変数から読み込み
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
   {
     auth: {
       autoRefreshToken: false,
@@ -21,9 +21,9 @@ const supabaseAdmin = createClient(
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    console.log('Registration request body:', body); // デバッグ用ログ
+    console.log('Registration request body:', body);
     
-    const { email, password, companyName, companyAddress } = body;
+    const { email, password, companyName, companyAddress, representativeName } = body;
 
     // 必須項目のバリデーション
     if (!email || !password) {
@@ -53,7 +53,7 @@ export async function POST(request: Request) {
 
     const cookieStore = cookies();
 
-    // Supabaseクライアントを作成
+    // Supabaseクライアントを作成（通常のクライアント）
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -75,13 +75,15 @@ export async function POST(request: Request) {
       }
     );
 
+    console.log('Creating user with Supabase Auth...');
+
     // 1. Supabase Authenticationでユーザーを作成
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: {
-          name: companyName || 'ユーザー', // ユーザーメタデータに名前を保存
+          name: representativeName || companyName || 'ユーザー',
         }
       }
     });
@@ -104,6 +106,7 @@ export async function POST(request: Request) {
     }
 
     if (!authData.user) {
+      console.error('No user returned from Supabase auth');
       return NextResponse.json(
         { error: 'ユーザーの作成に失敗しました' },
         { status: 500 }
@@ -111,20 +114,37 @@ export async function POST(request: Request) {
     }
 
     const userId = authData.user.id;
+    console.log('User created successfully with ID:', userId);
 
     // 2. 会社情報がある場合は companies テーブルに保存
     if (companyName) {
-      const { error: companyError } = await supabase
+      console.log('Saving company information...');
+      
+      // 新しいスキーマに合わせたデータ構造
+      const companyData = {
+        user_id: userId,
+        name: companyName,
+        representative_name: representativeName || null,
+        address_line1: companyAddress || null,
+        email: email, // ユーザーのメールアドレスを初期値として設定
+      };
+      
+      console.log('Company data to insert:', companyData);
+      
+      // サービスロールキーを使用してcompaniesテーブルに挿入（RLSを回避）
+      const { data: companyResult, error: companyError } = await supabaseAdmin
         .from('companies')
-        .insert({
-          user_id: userId,
-          name: companyName,
-          address: companyAddress || null,
-          email: email, // ユーザーのメールアドレスを初期値として設定
-        });
+        .insert(companyData)
+        .select()
+        .single();
 
       if (companyError) {
-        console.error('Company insert error:', companyError);
+        console.error('Company insert error details:', {
+          message: companyError.message,
+          details: companyError.details,
+          hint: companyError.hint,
+          code: companyError.code
+        });
 
         // クリーンアップ: 作成済みの認証ユーザーを削除
         try {
@@ -134,11 +154,26 @@ export async function POST(request: Request) {
           console.error(`CRITICAL: Failed to clean up auth user ${userId}:`, deleteError);
         }
 
+        // より詳細なエラーメッセージを返す
+        let errorMessage = '会社情報の保存に失敗しました';
+        if (companyError.code === '23505') {
+          errorMessage = 'この会社情報は既に登録されています';
+        } else if (companyError.code === '23503') {
+          errorMessage = 'ユーザー情報の関連付けに失敗しました';
+        } else if (companyError.message.includes('permission')) {
+          errorMessage = 'データベースへのアクセス権限がありません';
+        }
+
         return NextResponse.json(
-          { error: '会社情報の保存に失敗しました' },
+          { 
+            error: errorMessage,
+            details: process.env.NODE_ENV === 'development' ? companyError.message : undefined
+          },
           { status: 500 }
         );
       }
+
+      console.log('Company information saved successfully:', companyResult);
     }
 
     // 成功レスポンス
@@ -148,7 +183,7 @@ export async function POST(request: Request) {
         user: {
           id: authData.user.id,
           email: authData.user.email,
-          name: companyName || 'ユーザー',
+          name: representativeName || companyName || 'ユーザー',
         },
         // 確認メールが必要な場合の情報
         emailConfirmationRequired: !authData.user.email_confirmed_at
@@ -168,7 +203,10 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json(
-      { error: '登録処理中にエラーが発生しました' },
+      { 
+        error: '登録処理中にエラーが発生しました',
+        details: process.env.NODE_ENV === 'development' ? (error as Error).message : undefined
+      },
       { status: 500 }
     );
   }

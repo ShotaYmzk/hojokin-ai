@@ -1,13 +1,10 @@
-// ===================================================
 // app/api/applications/[id]/route.ts
-// ===================================================
-
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
 // GET: 申請詳細取得
-export async function GET_APPLICATION_DETAIL(
+export async function GET(
     request: NextRequest,
     { params }: { params: { id: string } }
   ) {
@@ -103,7 +100,7 @@ export async function GET_APPLICATION_DETAIL(
   }
   
   // PUT: 申請更新
-  export async function PUT_APPLICATION(
+  export async function PUT(
     request: NextRequest,
     { params }: { params: { id: string } }
   ) {
@@ -143,7 +140,7 @@ export async function GET_APPLICATION_DETAIL(
       // リクエストボディを取得
       const body = await request.json();
       
-      // 更新データを準備
+      // 更新データを準備（新しいスキーマに対応）
       const updateData: any = {};
       if (body.status !== undefined) updateData.status = body.status;
       if (body.progress !== undefined) updateData.progress = body.progress;
