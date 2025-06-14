@@ -226,13 +226,53 @@ const industries = [
 ];
 
 const prefectures = [
-  "北海道", "青森県", "岩手県", "宮城県", "秋田県", "山形県", "福島県",
-  "茨城県", "栃木県", "群馬県", "埼玉県", "千葉県", "東京都", "神奈川県",
-  "新潟県", "富山県", "石川県", "福井県", "山梨県", "長野県", "岐阜県",
-  "静岡県", "愛知県", "三重県", "滋賀県", "京都府", "大阪府", "兵庫県",
-  "奈良県", "和歌山県", "鳥取県", "島根県", "岡山県", "広島県", "山口県",
-  "徳島県", "香川県", "愛媛県", "高知県", "福岡県", "佐賀県", "長崎県",
-  "熊本県", "大分県", "宮崎県", "鹿児島県", "沖縄県",
+  "北海道",
+  "青森県",
+  "岩手県",
+  "宮城県",
+  "秋田県",
+  "山形県",
+  "福島県",
+  "茨城県",
+  "栃木県",
+  "群馬県",
+  "埼玉県",
+  "千葉県",
+  "東京都",
+  "神奈川県",
+  "新潟県",
+  "富山県",
+  "石川県",
+  "福井県",
+  "山梨県",
+  "長野県",
+  "岐阜県",
+  "静岡県",
+  "愛知県",
+  "三重県",
+  "滋賀県",
+  "京都府",
+  "大阪府",
+  "兵庫県",
+  "奈良県",
+  "和歌山県",
+  "鳥取県",
+  "島根県",
+  "岡山県",
+  "広島県",
+  "山口県",
+  "徳島県",
+  "香川県",
+  "愛媛県",
+  "高知県",
+  "福岡県",
+  "佐賀県",
+  "長崎県",
+  "熊本県",
+  "大分県",
+  "宮崎県",
+  "鹿児島県",
+  "沖縄県",
 ];
 
 const employeeCategories = [
@@ -271,27 +311,29 @@ export default function CompanyProfilePage() {
     const fetchProfile = async () => {
       setIsLoading(true);
       setApiError(null);
-      
+
       try {
-        const response = await fetch('/api/company/profile', {
+        const response = await fetch("/api/company/profile", {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
           },
         });
 
         if (!response.ok) {
           if (response.status === 401) {
             // 認証エラーの場合はログインページにリダイレクト
-            localStorage.removeItem('isLoggedIn');
-            localStorage.removeItem('authToken');
-            localStorage.removeItem('user');
-            window.location.href = '/login';
+            localStorage.removeItem("isLoggedIn");
+            localStorage.removeItem("authToken");
+            localStorage.removeItem("user");
+            window.location.href = "/login";
+
             return;
           }
-          throw new Error('企業情報の取得に失敗しました。');
+          throw new Error("企業情報の取得に失敗しました。");
         }
 
         const data = await response.json();
+
         setProfile(data);
         setIsEditing(false);
       } catch (error: any) {
@@ -313,6 +355,7 @@ export default function CompanyProfilePage() {
 
     if (type === "checkbox") {
       const { checked } = e.target as HTMLInputElement;
+
       setProfile((prev) => ({ ...prev, [name]: checked }));
     } else {
       setProfile((prev) => ({ ...prev, [name]: value }));
@@ -324,13 +367,13 @@ export default function CompanyProfilePage() {
     setIsLoading(true);
     setApiError(null);
     setApiSuccess(null);
-    
+
     try {
-      const response = await fetch('/api/company/profile', {
-        method: 'PUT',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      const response = await fetch("/api/company/profile", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
         },
         body: JSON.stringify(profile),
       });
@@ -338,17 +381,20 @@ export default function CompanyProfilePage() {
       if (!response.ok) {
         if (response.status === 401) {
           // 認証エラーの場合はログインページにリダイレクト
-          localStorage.removeItem('isLoggedIn');
-          localStorage.removeItem('authToken');
-          localStorage.removeItem('user');
-          window.location.href = '/login';
+          localStorage.removeItem("isLoggedIn");
+          localStorage.removeItem("authToken");
+          localStorage.removeItem("user");
+          window.location.href = "/login";
+
           return;
         }
         const errorData = await response.json();
-        throw new Error(errorData.error || '企業情報の保存に失敗しました。');
+
+        throw new Error(errorData.error || "企業情報の保存に失敗しました。");
       }
 
       const updatedProfile = await response.json();
+
       setProfile(updatedProfile);
       setApiSuccess("企業情報を保存しました。");
       setIsEditing(false);

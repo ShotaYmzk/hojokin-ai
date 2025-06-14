@@ -1,7 +1,7 @@
 // app/api/ai/generate-document-draft/route.ts
-import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // Gemini AI クライアントの初期化
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
@@ -9,7 +9,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 // Supabase クライアントの初期化
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
 );
 
 export async function POST(request: NextRequest) {
@@ -17,50 +17,51 @@ export async function POST(request: NextRequest) {
     const { companyInfo, subsidyId, sections } = await request.json();
 
     // 認証チェック
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader?.startsWith('Bearer ')) {
-      return NextResponse.json(
-        { error: '認証が必要です' },
-        { status: 401 }
-      );
+    const authHeader = request.headers.get("authorization");
+
+    if (!authHeader?.startsWith("Bearer ")) {
+      return NextResponse.json({ error: "認証が必要です" }, { status: 401 });
     }
 
-    const token = authHeader.replace('Bearer ', '');
-    
+    const token = authHeader.replace("Bearer ", "");
+
     // JWTからユーザー情報を取得
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser(token);
+
     if (authError || !user) {
       return NextResponse.json(
-        { error: '認証に失敗しました' },
-        { status: 401 }
+        { error: "認証に失敗しました" },
+        { status: 401 },
       );
     }
 
     // 企業情報の取得（既存のデータベーススキーマに合わせて調整）
     const { data: company, error: companyError } = await supabase
-      .from('companies')
-      .select('*')
-      .eq('user_id', user.id)
+      .from("companies")
+      .select("*")
+      .eq("user_id", user.id)
       .single();
 
     if (companyError || !company) {
       return NextResponse.json(
-        { error: '企業情報が見つかりません' },
-        { status: 400 }
+        { error: "企業情報が見つかりません" },
+        { status: 400 },
       );
     }
 
     // JグランツAPIから補助金情報を取得（実際の実装時）
     // const subsidyData = await fetchSubsidyFromJGrants(subsidyId);
-    
+
     // ダミーの補助金データ（実際にはJグランツAPIから取得）
     const subsidyData = {
-      name: 'IT導入補助金2025',
-      purpose: 'ITツール導入による生産性向上支援',
-      maxAmount: '450万円',
-      subsidyRate: '1/2〜2/3',
-      targetAudience: '中小企業・小規模事業者'
+      name: "IT導入補助金2025",
+      purpose: "ITツール導入による生産性向上支援",
+      maxAmount: "450万円",
+      subsidyRate: "1/2〜2/3",
+      targetAudience: "中小企業・小規模事業者",
     };
 
     const generatedSections = [];
@@ -69,44 +70,47 @@ export async function POST(request: NextRequest) {
     for (const sectionKey of sections) {
       try {
         const prompt = generateSectionPrompt(sectionKey, company, subsidyData);
-        
+
         const model = genAI.getGenerativeModel({ model: "gemini-pro" });
         const result = await model.generateContent(prompt);
         const response = await result.response;
         const content = response.text();
-        
+
         generatedSections.push({
           sectionKey,
           title: getSectionTitle(sectionKey),
           content,
-          editable: true
+          editable: true,
         });
-
       } catch (aiError) {
         console.error(`Gemini API生成エラー (${sectionKey}):`, aiError);
-        
+
         // フォールバック: テンプレートベースの生成
         generatedSections.push({
           sectionKey,
           title: getSectionTitle(sectionKey),
           content: generateFallbackContent(sectionKey, company, subsidyData),
-          editable: true
+          editable: true,
         });
       }
     }
 
     return NextResponse.json(generatedSections);
-
   } catch (error) {
-    console.error('AI文書生成エラー:', error);
+    console.error("AI文書生成エラー:", error);
+
     return NextResponse.json(
-      { error: '文書生成中にエラーが発生しました' },
-      { status: 500 }
+      { error: "文書生成中にエラーが発生しました" },
+      { status: 500 },
     );
   }
 }
 
-function generateSectionPrompt(sectionKey: string, companyInfo: any, subsidyData: any): string {
+function generateSectionPrompt(
+  sectionKey: string,
+  companyInfo: any,
+  subsidyData: any,
+): string {
   const baseContext = `
 企業情報:
 - 会社名: ${companyInfo.name}
@@ -127,7 +131,7 @@ function generateSectionPrompt(sectionKey: string, companyInfo: any, subsidyData
 `;
 
   switch (sectionKey) {
-    case 'business_overview':
+    case "business_overview":
       return `${baseContext}
       
 上記の企業情報と補助金制度を踏まえて、以下の要素を含む「事業計画の概要」セクションを作成してください：
@@ -141,7 +145,7 @@ function generateSectionPrompt(sectionKey: string, companyInfo: any, subsidyData
 文書は補助金申請書として適切な敬語・ビジネス文書の形式で、1000文字程度で作成してください。
 具体的で説得力のある内容にしてください。`;
 
-    case 'expense_details':
+    case "expense_details":
       return `${baseContext}
       
 上記の企業情報と補助金制度を踏まえて、「経費内訳」セクションを作成してください：
@@ -155,7 +159,7 @@ function generateSectionPrompt(sectionKey: string, companyInfo: any, subsidyData
 金額は現実的で妥当な範囲で設定し、補助金制度の上限額と補助率を考慮してください。
 表形式も含めて800文字程度で作成してください。`;
 
-    case 'implementation_plan':
+    case "implementation_plan":
       return `${baseContext}
       
 「実施計画」セクションを詳細に作成してください：
@@ -169,7 +173,7 @@ function generateSectionPrompt(sectionKey: string, companyInfo: any, subsidyData
 
 実現可能で具体的な計画として、1200文字程度で作成してください。`;
 
-    case 'expected_effects':
+    case "expected_effects":
       return `${baseContext}
       
 「期待される効果」セクションを作成してください：
@@ -193,21 +197,26 @@ function generateSectionPrompt(sectionKey: string, companyInfo: any, subsidyData
 
 function getSectionTitle(sectionKey: string): string {
   const titles: { [key: string]: string } = {
-    'business_overview': '事業計画の概要',
-    'expense_details': '経費内訳',
-    'implementation_plan': '実施計画',
-    'expected_effects': '期待される効果',
-    'management_system': '実施体制',
-    'risk_management': 'リスク管理',
-    'follow_up_plan': 'フォローアップ計画'
+    business_overview: "事業計画の概要",
+    expense_details: "経費内訳",
+    implementation_plan: "実施計画",
+    expected_effects: "期待される効果",
+    management_system: "実施体制",
+    risk_management: "リスク管理",
+    follow_up_plan: "フォローアップ計画",
   };
+
   return titles[sectionKey] || sectionKey;
 }
 
-function generateFallbackContent(sectionKey: string, companyInfo: any, subsidyData: any): string {
+function generateFallbackContent(
+  sectionKey: string,
+  companyInfo: any,
+  subsidyData: any,
+): string {
   // Gemini API生成に失敗した場合のテンプレートベース生成
   switch (sectionKey) {
-    case 'business_overview':
+    case "business_overview":
       return `【事業概要】
 弊社${companyInfo.name}は、${companyInfo.industry}業界において${companyInfo.business_description}を行っております。
 設立${companyInfo.establishment_year}年、従業員数${companyInfo.employee_count_category}の企業として、地域の${companyInfo.prefecture}を拠点に事業を展開しております。
@@ -227,7 +236,7 @@ ${subsidyData.name}を活用し、以下のシステム導入を計画してお�
 
 ※この内容はテンプレートです。詳細な内容に編集してください。`;
 
-    case 'expense_details':
+    case "expense_details":
       return `【経費内訳】
 
 1. ソフトウェア導入費用

@@ -1,6 +1,6 @@
 // lib/auth.ts
-import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
+import { NextRequest, NextResponse } from "next/server";
+import { createServerClient } from "@supabase/ssr";
 
 export interface AuthenticatedUser {
   id: string;
@@ -8,7 +8,9 @@ export interface AuthenticatedUser {
   name?: string;
 }
 
-export async function authenticateUser(request: NextRequest): Promise<AuthenticatedUser | null> {
+export async function authenticateUser(
+  request: NextRequest,
+): Promise<AuthenticatedUser | null> {
   try {
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -25,10 +27,13 @@ export async function authenticateUser(request: NextRequest): Promise<Authentica
             // Server-side middleware doesn't remove cookies
           },
         },
-      }
+      },
     );
 
-    const { data: { user }, error } = await supabase.auth.getUser();
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
 
     if (error || !user) {
       return null;
@@ -40,20 +45,23 @@ export async function authenticateUser(request: NextRequest): Promise<Authentica
       name: user.user_metadata?.name,
     };
   } catch (error) {
-    console.error('Authentication error:', error);
+    console.error("Authentication error:", error);
+
     return null;
   }
 }
 
-export function withAuth(handler: (request: NextRequest, user: AuthenticatedUser) => Promise<NextResponse>) {
+export function withAuth(
+  handler: (
+    request: NextRequest,
+    user: AuthenticatedUser,
+  ) => Promise<NextResponse>,
+) {
   return async (request: NextRequest) => {
     const user = await authenticateUser(request);
-    
+
     if (!user) {
-      return NextResponse.json(
-        { error: '認証が必要です' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "認証が必要です" }, { status: 401 });
     }
 
     return handler(request, user);
@@ -62,9 +70,11 @@ export function withAuth(handler: (request: NextRequest, user: AuthenticatedUser
 
 // JWT トークンから認証情報を抽出するヘルパー関数
 export function getAuthFromHeaders(request: NextRequest): string | null {
-  const authHeader = request.headers.get('authorization');
-  if (authHeader && authHeader.startsWith('Bearer ')) {
+  const authHeader = request.headers.get("authorization");
+
+  if (authHeader && authHeader.startsWith("Bearer ")) {
     return authHeader.substring(7);
   }
+
   return null;
 }

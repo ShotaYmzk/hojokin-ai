@@ -68,7 +68,7 @@ const MatchingChatPage: React.FC = () => {
   const [inputText, setInputText] = useState("");
   // ▼▼▼ 修正箇所 ▼▼▼
   const [_companyInfo] = useState<CompanyInfo>({
-  // ▲▲▲ 修正箇所 ▲▲▲
+    // ▲▲▲ 修正箇所 ▲▲▲
     name: "株式会社テクノソリューション",
     industry: "IT・通信",
     employees: "25名",
@@ -696,7 +696,7 @@ const MatchingChatPage: React.FC = () => {
                 rel="noopener noreferrer"
                 target="_blank"
               >
-              {/* ▲▲▲ 修正箇所 ▲▲▲ */}
+                {/* ▲▲▲ 修正箇所 ▲▲▲ */}
                 <button className="bg-success hover:bg-success-600 text-success-foreground font-medium py-2 px-4 rounded-md whitespace-nowrap cursor-pointer flex items-center">
                   <span className="mr-2">📄</span>
                   この補助金の申請書類作成に進む

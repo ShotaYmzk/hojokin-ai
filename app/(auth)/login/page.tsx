@@ -44,34 +44,34 @@ export default function LoginPage() {
     if (!email || !password) {
       setError("メールアドレスとパスワードを入力してください。");
       setIsLoading(false);
+
       return;
     }
 
     try {
       // 実際のAPIコール
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'ログインに失敗しました。');
+        throw new Error(data.error || "ログインに失敗しました。");
       }
 
       // ログイン成功時の処理
-      localStorage.setItem('isLoggedIn', 'true');
-      localStorage.setItem('authToken', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
+      localStorage.setItem("isLoggedIn", "true");
+      localStorage.setItem("authToken", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
 
       // ダッシュボードにリダイレクト
-      router.push('/dashboard');
-
+      router.push("/dashboard");
     } catch (err: any) {
-      console.error('Login error:', err);
-      setError(err.message || 'ログイン中にエラーが発生しました。');
+      console.error("Login error:", err);
+      setError(err.message || "ログイン中にエラーが発生しました。");
     } finally {
       setIsLoading(false);
     }

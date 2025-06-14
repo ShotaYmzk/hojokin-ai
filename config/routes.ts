@@ -1,7 +1,7 @@
 export const routes = {
-  top: '/',
+  top: "/",
   auth: {
-    login: '/login',
-    register: '/register',
+    login: "/login",
+    register: "/register",
   },
-} as const; 
+} as const;

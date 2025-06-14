@@ -51,17 +51,17 @@ export default function Page() {
     setIsLoading(true);
 
     try {
-      console.log('Sending registration request:', { 
-        email, 
+      console.log("Sending registration request:", {
+        email,
         companyName,
         representativeName,
         hasPassword: !!password,
-        hasCompanyAddress: !!companyAddress 
+        hasCompanyAddress: !!companyAddress,
       }); // デバッグ用
 
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email,
           password,
@@ -72,30 +72,34 @@ export default function Page() {
       });
 
       const data = await response.json();
-      console.log('Registration response:', data); // デバッグ用
+
+      console.log("Registration response:", data); // デバッグ用
 
       if (!response.ok) {
         // サーバーからの詳細なエラーメッセージを表示
-        const errorMessage = data.error || '登録に失敗しました';
-        const errorDetails = data.details ? ` (詳細: ${data.details})` : '';
+        const errorMessage = data.error || "登録に失敗しました";
+        const errorDetails = data.details ? ` (詳細: ${data.details})` : "";
+
         throw new Error(errorMessage + errorDetails);
       }
 
       // 成功した場合
-      setSuccess(data.message || '登録が完了しました！');
-      
+      setSuccess(data.message || "登録が完了しました！");
+
       // メール確認が必要な場合の案内
       if (data.emailConfirmationRequired) {
-        setSuccess(prev => `${prev} 確認メールをお送りしましたので、メールボックスをご確認ください。`);
+        setSuccess(
+          (prev) =>
+            `${prev} 確認メールをお送りしましたので、メールボックスをご確認ください。`,
+        );
       }
-      
+
       // 2秒後にログインページにリダイレクト
       setTimeout(() => {
         router.push(routes.auth.login + "?registered=true");
       }, 2000);
-
     } catch (error: any) {
-      console.error('Registration error:', error);
+      console.error("Registration error:", error);
       setError(error.message || "不明なエラーが発生しました。");
     } finally {
       setIsLoading(false);
@@ -117,72 +121,64 @@ export default function Page() {
           </p>
         </div>
 
-        {error && (
-          <Alert color="danger">
-            {error}
-          </Alert>
-        )}
+        {error && <Alert color="danger">{error}</Alert>}
 
-        {success && (
-          <Alert color="success">
-            {success}
-          </Alert>
-        )}
+        {success && <Alert color="success">{success}</Alert>}
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
           <Input
-            name="companyName"
+            isRequired
+            disabled={isLoading}
             label="会社名"
+            name="companyName"
             placeholder="株式会社〇〇"
             value={companyName}
             onValueChange={setCompanyName}
-            isRequired
-            disabled={isLoading}
           />
           <Input
-            name="representativeName"
+            disabled={isLoading}
             label="代表者名"
+            name="representativeName"
             placeholder="山田 太郎"
             value={representativeName}
             onValueChange={setRepresentativeName}
-            disabled={isLoading}
           />
           <Input
-            name="companyAddress"
+            disabled={isLoading}
             label="会社の所在地（任意）"
+            name="companyAddress"
             placeholder="東京都千代田区〇〇1-1-1"
             value={companyAddress}
             onValueChange={setCompanyAddress}
-            disabled={isLoading}
           />
           <Input
-            name="email"
-            type="email"
+            isRequired
+            disabled={isLoading}
             label="メールアドレス"
+            name="email"
             placeholder="email@example.com"
+            type="email"
             value={email}
             onValueChange={setEmail}
-            isRequired
-            disabled={isLoading}
           />
           <Input
-            name="password"
-            type="password"
+            isRequired
+            description="6文字以上で入力してください"
+            disabled={isLoading}
             label="パスワード"
+            name="password"
             placeholder="••••••••"
+            type="password"
             value={password}
             onValueChange={setPassword}
-            isRequired
-            disabled={isLoading}
-            description="6文字以上で入力してください"
           />
 
-          <Button 
-            type="submit" 
-            color="primary" 
-            className="w-full" 
-            isLoading={isLoading}
+          <Button
+            className="w-full"
+            color="primary"
             disabled={isLoading}
+            isLoading={isLoading}
+            type="submit"
           >
             {isLoading ? "登録中..." : "同意して登録"}
           </Button>
@@ -190,7 +186,7 @@ export default function Page() {
 
         <p className="text-center text-sm text-muted-foreground">
           アカウントをお持ちですか？{" "}
-          <Link href={routes.auth.login} className="underline">
+          <Link className="underline" href={routes.auth.login}>
             ログインはこちら
           </Link>
         </p>

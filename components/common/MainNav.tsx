@@ -1,13 +1,13 @@
 // File: /components/common/MainNav.tsx
 "use client";
 
-import { AppLogo } from "@/components/common/AppLogo";
-import { siteConfig } from "@/config/site";
-import { type NavItem } from "@/types";
-import { cn } from "@/utils/cn";
 import { Link } from "@nextui-org/react";
 import NextLink from "next/link";
 import { usePathname } from "next/navigation";
+
+import { AppLogo } from "@/components/common/AppLogo";
+import { type NavItem } from "@/types";
+import { cn } from "@/utils/cn";
 
 interface MainNavProps {
   items?: NavItem[];

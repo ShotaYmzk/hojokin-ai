@@ -37,6 +37,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       if (!isLoggedIn || !currentUser) {
         // 未認証の場合はログインページにリダイレクト
         router.push("/login");
+
         return;
       }
 
@@ -73,7 +74,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4" />
           <p className="text-foreground">認証状態を確認中...</p>
         </div>
       </div>
@@ -105,7 +106,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <span className="text-2xl">✕</span>
           </button>
         </div>
-        
+
         <nav className="flex-grow">
           <ul>
             {appNavItems.map((item) => (
@@ -128,7 +129,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             ))}
           </ul>
         </nav>
-        
+
         <div className="mt-auto">
           <div className="mb-4 flex justify-start">
             <ThemeSwitch />
@@ -160,13 +161,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         {/* モバイル用のハンバーガーメニューボタン */}
         <div className="md:hidden flex items-center justify-between p-4 bg-content1 border-b border-divider">
           <button
-            onClick={() => setIsSidebarOpen(true)}
             className="text-foreground-500 hover:text-foreground-700"
+            onClick={() => setIsSidebarOpen(true)}
           >
             <span className="text-2xl">☰</span>
           </button>
           <AppLogo className="text-primary" size={24} />
-          <div className="w-8"></div> {/* スペーサー */}
+          <div className="w-8" /> {/* スペーサー */}
         </div>
 
         {isSidebarOpen && (

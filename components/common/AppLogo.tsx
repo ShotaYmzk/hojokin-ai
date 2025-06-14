@@ -1,9 +1,10 @@
 // File: /components/common/AppLogo.tsx
-import { routes } from "@/config/routes";
-import { siteConfig } from "@/config/site";
 import { Link } from "@nextui-org/react";
 import { type HTMLNextUIProps } from "@nextui-org/react";
 import NextLink from "next/link";
+
+import { siteConfig } from "@/config/site";
+import { routes } from "@/config/routes";
 
 interface AppLogoProps extends HTMLNextUIProps<"svg"> {
   size?: number;
@@ -11,11 +12,11 @@ interface AppLogoProps extends HTMLNextUIProps<"svg"> {
 
 export const AppLogo = ({ className, size = 36 }: AppLogoProps) => (
   <Link
+    isBlock
     as={NextLink}
     className="flex items-center gap-2"
-    href={routes.top}
-    isBlock
     color="foreground"
+    href={routes.top}
   >
     <svg
       className={className}

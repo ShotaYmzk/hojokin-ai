@@ -153,11 +153,12 @@ const Button: React.FC<any> = ({
 
   if (as === Link) {
     return (
-      <Link href={href || "#"} className={commonClasses} {...props}>
+      <Link className={commonClasses} href={href || "#"} {...props}>
         {children}
       </Link>
     );
   }
+
   return (
     <button
       className={commonClasses}
@@ -182,6 +183,7 @@ const Chip: React.FC<{
     warning: "bg-warning-100 text-warning-800",
     danger: "bg-danger-100 text-danger-800",
   };
+
   return (
     <span
       className={`px-2.5 py-0.5 text-xs rounded-full font-medium ${
@@ -219,6 +221,7 @@ export default function SubsidyDetailPage() {
         try {
           await new Promise((resolve) => setTimeout(resolve, 500));
           const data = dummySubsidyDetails[subsidyId];
+
           if (!data) {
             throw new Error("指定された補助金は見つかりませんでした。");
           }
@@ -229,6 +232,7 @@ export default function SubsidyDetailPage() {
           setIsLoading(false);
         }
       };
+
       fetchSubsidyDetail();
     }
   }, [subsidyId]);
@@ -236,11 +240,13 @@ export default function SubsidyDetailPage() {
   const handleRequirementCheck = (checkId: string) => {
     setCheckedRequirements((prev) => {
       const newSet = new Set(prev);
+
       if (newSet.has(checkId)) {
         newSet.delete(checkId);
       } else {
         newSet.add(checkId);
       }
+
       return newSet;
     });
   };
@@ -294,8 +300,8 @@ export default function SubsidyDetailPage() {
     <div className="max-w-5xl mx-auto space-y-8 pb-12">
       <header className="pt-4">
         <button
-          onClick={() => router.back()}
           className="text-sm text-foreground-500 hover:text-foreground-800 mb-4"
+          onClick={() => router.back()}
         >
           ← 検索結果に戻る
         </button>
@@ -335,10 +341,10 @@ export default function SubsidyDetailPage() {
                       className="flex items-center p-3 bg-background rounded-lg cursor-pointer hover:bg-default-50"
                     >
                       <input
-                        type="checkbox"
                         checked={checkedRequirements.has(item.id)}
-                        onChange={() => handleRequirementCheck(item.id)}
                         className="form-checkbox h-5 w-5 text-primary rounded border-default-400 focus:ring-primary"
+                        type="checkbox"
+                        onChange={() => handleRequirementCheck(item.id)}
                       />
                       <span className="ml-3 text-sm font-medium text-foreground-800">
                         {item.text}
@@ -373,12 +379,12 @@ export default function SubsidyDetailPage() {
             <CardBody className="space-y-4">
               {subsidy.officialPageUrl && (
                 <Button
-                  as={Link}
-                  href={subsidy.officialPageUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
                   fullWidth
+                  as={Link}
                   color="primary"
+                  href={subsidy.officialPageUrl}
+                  rel="noopener noreferrer"
+                  target="_blank"
                 >
                   🌐 公式ページで詳細を確認
                 </Button>
@@ -387,13 +393,13 @@ export default function SubsidyDetailPage() {
                 fullWidth
                 color="success"
                 disabled={!allRequirementsChecked}
-                onClick={() =>
-                  router.push(`/documents/create?subsidyId=${subsidy.id}`)
-                }
                 title={
                   !allRequirementsChecked
                     ? "先にすべての申請要件をチェックしてください"
                     : ""
+                }
+                onClick={() =>
+                  router.push(`/documents/create?subsidyId=${subsidy.id}`)
                 }
               >
                 📝 この内容で書類作成に進む

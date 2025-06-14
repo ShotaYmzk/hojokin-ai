@@ -1,6 +1,7 @@
 // File: /app/page.tsx
 import { Link } from "@heroui/link";
 import { button as buttonStyles } from "@heroui/theme";
+
 import { title, subtitle } from "@/components/primitives";
 
 export default function HomePage() {
@@ -28,7 +29,7 @@ export default function HomePage() {
                 radius: "full",
                 variant: "shadow",
                 size: "lg",
-                class: "w-full sm:w-auto"
+                class: "w-full sm:w-auto",
               })}
               href="/register"
             >
@@ -39,7 +40,7 @@ export default function HomePage() {
                 variant: "bordered",
                 radius: "full",
                 size: "lg",
-                class: "w-full sm:w-auto"
+                class: "w-full sm:w-auto",
               })}
               href="/login"
             >
@@ -49,7 +50,9 @@ export default function HomePage() {
         </div>
 
         <div className="mt-20 max-w-6xl mx-auto">
-          <h2 className={title({ size: "md", class: "mb-8 text-center" })}>主な機能</h2>
+          <h2 className={title({ size: "md", class: "mb-8 text-center" })}>
+            主な機能
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-4">
             <div className="p-6 border border-default-200 rounded-xl hover:shadow-lg transition-shadow">
               <h3 className="text-xl font-semibold mb-3">簡単検索</h3>
