@@ -45,25 +45,18 @@ export default function RootLayout({
         )}
       >
         <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
-          <div className="relative flex flex-col h-screen">
+          <div className="relative flex flex-col min-h-screen">
             {/* <MainNav /> {/* ★変更: Navbar -> MainNav */}
-            <main className="container mx-auto max-w-7xl pt-16 px-6 flex-grow">
+            <main className="flex-1 w-full">
               {children}
             </main>
-            <footer className="w-full flex items-center justify-center py-3">
-              <p className="text-sm text-default-600">
-                © {new Date().getFullYear()} {siteConfig.name}. All rights
-                reserved.
-              </p>
-              {/* <Link
-                isExternal
-                className="flex items-center gap-1 text-current"
-                href="https://heroui.com?utm_source=next-app-template" // 必要に応じて変更・削除
-                title="heroui.com homepage"
-              >
-                <span className="text-default-600">Powered by</span>
-                <p className="text-primary">HeroUI</p>
-              </Link> */}
+            <footer className="w-full border-t border-default-200">
+              <div className="container mx-auto px-4 py-6">
+                <p className="text-sm text-default-600 text-center">
+                  © {new Date().getFullYear()} {siteConfig.name}. All rights
+                  reserved.
+                </p>
+              </div>
             </footer>
           </div>
         </Providers>
