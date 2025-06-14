@@ -269,322 +269,324 @@ export default function SubsidySearchPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto p-6 space-y-6">
-      {/* ページタイトル */}
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">補助金検索</h1>
-        <p className="text-gray-600">
-          条件を指定して最適な補助金制度を見つけましょう
-        </p>
-      </div>
-
-      {/* 検索ヘッダー */}
-      <div className="bg-white rounded-xl shadow-sm border p-6">
-        <div className="flex flex-col lg:flex-row gap-4">
-          <div className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="補助金・助成金を検索..."
-                type="text"
-                value={filters.keyword}
-                onChange={(e) => updateFilter("keyword", e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && handleSearch()}
-              />
-            </div>
-          </div>
-
-          <div className="flex gap-2">
-            <button
-              className={`px-4 py-3 border rounded-lg flex items-center gap-2 transition-colors ${
-                showFilters
-                  ? "bg-blue-50 border-blue-300 text-blue-700"
-                  : "border-gray-300 hover:bg-gray-50"
-              }`}
-              onClick={() => setShowFilters(!showFilters)}
-            >
-              <Filter className="w-4 h-4" />
-              詳細フィルター
-            </button>
-
-            <button
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              disabled={isLoading}
-              onClick={handleSearch}
-            >
-              {isLoading ? "検索中..." : "検索"}
-            </button>
-          </div>
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-[1920px] mx-auto p-6 space-y-6">
+        {/* ページタイトル */}
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">補助金検索</h1>
+          <p className="text-gray-600">
+            条件を指定して最適な補助金制度を見つけましょう
+          </p>
         </div>
 
-        {/* 詳細フィルター */}
-        {showFilters && (
-          <div className="mt-6 pt-6 border-t border-gray-200 space-y-6">
-            {/* カテゴリフィルター */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                カテゴリ
-              </label>
-              <div className="flex flex-wrap gap-2">
-                {CATEGORIES.map((category) => (
-                  <button
-                    key={category}
-                    className={`px-3 py-1 rounded-full text-sm transition-colors ${
-                      filters.categories.includes(category)
-                        ? "bg-blue-100 text-blue-800 border border-blue-300"
-                        : "bg-gray-100 text-gray-700 border border-gray-300 hover:bg-gray-200"
-                    }`}
-                    onClick={() => toggleCategory(category)}
-                  >
-                    {category}
-                  </button>
-                ))}
+        {/* 検索ヘッダー */}
+        <div className="bg-white rounded-xl shadow-sm border p-6">
+          <div className="flex flex-col lg:flex-row gap-4">
+            <div className="flex-1">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <input
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="補助金・助成金を検索..."
+                  type="text"
+                  value={filters.keyword}
+                  onChange={(e) => updateFilter("keyword", e.target.value)}
+                  onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+                />
               </div>
             </div>
 
-            {/* 業種フィルター */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                対象業種
-              </label>
-              <div className="flex flex-wrap gap-2">
-                {INDUSTRIES.map((industry) => (
-                  <button
-                    key={industry}
-                    className={`px-3 py-1 rounded-full text-sm transition-colors ${
-                      filters.industries.includes(industry)
-                        ? "bg-green-100 text-green-800 border border-green-300"
-                        : "bg-gray-100 text-gray-700 border border-gray-300 hover:bg-gray-200"
-                    }`}
-                    onClick={() => toggleIndustry(industry)}
-                  >
-                    {industry}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* その他のフィルター */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  <MapPin className="inline w-4 h-4 mr-1" />
-                  都道府県
-                </label>
-                <select
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
-                  value={filters.prefecture}
-                  onChange={(e) => updateFilter("prefecture", e.target.value)}
-                >
-                  <option value="">全国</option>
-                  {PREFECTURES.map((pref) => (
-                    <option key={pref} value={pref}>
-                      {pref}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  <Users className="inline w-4 h-4 mr-1" />
-                  従業員数
-                </label>
-                <select
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
-                  value={filters.employeeCountRange}
-                  onChange={(e) =>
-                    updateFilter("employeeCountRange", e.target.value)
-                  }
-                >
-                  <option value="">指定なし</option>
-                  <option value="1-5">1-5名</option>
-                  <option value="6-20">6-20名</option>
-                  <option value="21-50">21-50名</option>
-                  <option value="51-100">51-100名</option>
-                  <option value="101-300">101-300名</option>
-                  <option value="300+">300名以上</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  <DollarSign className="inline w-4 h-4 mr-1" />
-                  資本金
-                </label>
-                <select
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
-                  value={filters.capitalAmountRange}
-                  onChange={(e) =>
-                    updateFilter("capitalAmountRange", e.target.value)
-                  }
-                >
-                  <option value="">指定なし</option>
-                  <option value="0-1000">1千万円以下</option>
-                  <option value="1000-5000">1千万円-5千万円</option>
-                  <option value="5000-10000">5千万円-1億円</option>
-                  <option value="10000+">1億円以上</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  <Calendar className="inline w-4 h-4 mr-1" />
-                  申請期限
-                </label>
-                <select
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
-                  value={filters.applicationDeadline}
-                  onChange={(e) =>
-                    updateFilter("applicationDeadline", e.target.value)
-                  }
-                >
-                  <option value="">指定なし</option>
-                  <option value="30days">30日以内</option>
-                  <option value="60days">60日以内</option>
-                  <option value="90days">90日以内</option>
-                  <option value="ongoing">通年募集</option>
-                </select>
-              </div>
-            </div>
-
-            {/* ソート設定とクリアボタン */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <label className="text-sm font-medium text-gray-700">
-                    並び順:
-                  </label>
-                  <select
-                    className="border border-gray-300 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500"
-                    value={filters.sortBy}
-                    onChange={(e) => updateFilter("sortBy", e.target.value)}
-                  >
-                    <option value="deadline">申請期限</option>
-                    <option value="maxAmount">補助上限額</option>
-                    <option value="score">マッチング度</option>
-                    <option value="created">登録日</option>
-                  </select>
-
-                  <select
-                    className="border border-gray-300 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500"
-                    value={filters.sortOrder}
-                    onChange={(e) =>
-                      updateFilter(
-                        "sortOrder",
-                        e.target.value as "asc" | "desc",
-                      )
-                    }
-                  >
-                    <option value="asc">昇順</option>
-                    <option value="desc">降順</option>
-                  </select>
-                </div>
-              </div>
+            <div className="flex gap-2">
+              <button
+                className={`px-4 py-3 border rounded-lg flex items-center gap-2 transition-colors ${
+                  showFilters
+                    ? "bg-blue-50 border-blue-300 text-blue-700"
+                    : "border-gray-300 hover:bg-gray-50"
+                }`}
+                onClick={() => setShowFilters(!showFilters)}
+              >
+                <Filter className="w-4 h-4" />
+                詳細フィルター
+              </button>
 
               <button
-                className="text-sm text-gray-600 hover:text-gray-800 underline"
-                onClick={clearFilters}
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                disabled={isLoading}
+                onClick={handleSearch}
               >
-                フィルターをクリア
+                {isLoading ? "検索中..." : "検索"}
               </button>
             </div>
           </div>
-        )}
-      </div>
 
-      {/* 検索結果 */}
-      <div className="space-y-4">
-        <div className="flex justify-between items-center">
-          <h2 className="text-xl font-bold text-gray-900">
-            検索結果 ({totalCount}件)
-          </h2>
-        </div>
-
-        {isLoading ? (
-          <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto" />
-            <p className="mt-2 text-gray-600">検索中...</p>
-          </div>
-        ) : results.length === 0 ? (
-          <div className="text-center py-12 bg-gray-50 rounded-xl">
-            <p className="text-gray-600">
-              条件に合う補助金が見つかりませんでした。
-            </p>
-            <p className="text-sm text-gray-500 mt-1">
-              検索条件を変更してお試しください。
-            </p>
-          </div>
-        ) : (
-          <div className="grid gap-6">
-            {results.map((result) => (
-              <div
-                key={result.id}
-                className="bg-white rounded-xl shadow-sm border p-6 hover:shadow-md transition-shadow"
-              >
-                <div className="flex justify-between items-start mb-4">
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                      {result.name}
-                    </h3>
-                    <p className="text-sm text-gray-600 mb-2">
-                      {result.organization}
-                    </p>
-                    <p className="text-gray-700 leading-relaxed">
-                      {result.summary}
-                    </p>
-                  </div>
-
-                  {result.score && (
-                    <div className="ml-4 text-right">
-                      <div className="text-sm text-gray-500">マッチング度</div>
-                      <div
-                        className={`text-lg font-bold ${
-                          result.score >= 0.8
-                            ? "text-green-600"
-                            : result.score >= 0.6
-                              ? "text-blue-600"
-                              : "text-orange-600"
-                        }`}
-                      >
-                        {Math.round(result.score * 100)}%
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {result.categories.map((category) => (
-                    <span
+          {/* 詳細フィルター */}
+          {showFilters && (
+            <div className="mt-6 pt-6 border-t border-gray-200 space-y-6">
+              {/* カテゴリフィルター */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  カテゴリ
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {CATEGORIES.map((category) => (
+                    <button
                       key={category}
-                      className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full"
+                      className={`px-3 py-1 rounded-full text-sm transition-colors ${
+                        filters.categories.includes(category)
+                          ? "bg-blue-100 text-blue-800 border border-blue-300"
+                          : "bg-gray-100 text-gray-700 border border-gray-300 hover:bg-gray-200"
+                      }`}
+                      onClick={() => toggleCategory(category)}
                     >
                       {category}
-                    </span>
+                    </button>
                   ))}
                 </div>
+              </div>
 
-                <div className="flex justify-between items-center text-sm text-gray-600">
-                  <div className="space-x-4">
-                    <span>上限額: {result.maxAmount}</span>
-                    <span>補助率: {result.subsidyRate}</span>
-                    <span>期限: {result.deadline}</span>
-                  </div>
-
-                  <div className="flex gap-2">
-                    <button className="px-4 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors">
-                      詳細を見る
+              {/* 業種フィルター */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  対象業種
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {INDUSTRIES.map((industry) => (
+                    <button
+                      key={industry}
+                      className={`px-3 py-1 rounded-full text-sm transition-colors ${
+                        filters.industries.includes(industry)
+                          ? "bg-green-100 text-green-800 border border-green-300"
+                          : "bg-gray-100 text-gray-700 border border-gray-300 hover:bg-gray-200"
+                      }`}
+                      onClick={() => toggleIndustry(industry)}
+                    >
+                      {industry}
                     </button>
-                    <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                      申請開始
-                    </button>
-                  </div>
+                  ))}
                 </div>
               </div>
-            ))}
+
+              {/* その他のフィルター */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <MapPin className="inline w-4 h-4 mr-1" />
+                    都道府県
+                  </label>
+                  <select
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                    value={filters.prefecture}
+                    onChange={(e) => updateFilter("prefecture", e.target.value)}
+                  >
+                    <option value="">全国</option>
+                    {PREFECTURES.map((pref) => (
+                      <option key={pref} value={pref}>
+                        {pref}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <Users className="inline w-4 h-4 mr-1" />
+                    従業員数
+                  </label>
+                  <select
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                    value={filters.employeeCountRange}
+                    onChange={(e) =>
+                      updateFilter("employeeCountRange", e.target.value)
+                    }
+                  >
+                    <option value="">指定なし</option>
+                    <option value="1-5">1-5名</option>
+                    <option value="6-20">6-20名</option>
+                    <option value="21-50">21-50名</option>
+                    <option value="51-100">51-100名</option>
+                    <option value="101-300">101-300名</option>
+                    <option value="300+">300名以上</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <DollarSign className="inline w-4 h-4 mr-1" />
+                    資本金
+                  </label>
+                  <select
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                    value={filters.capitalAmountRange}
+                    onChange={(e) =>
+                      updateFilter("capitalAmountRange", e.target.value)
+                    }
+                  >
+                    <option value="">指定なし</option>
+                    <option value="0-1000">1千万円以下</option>
+                    <option value="1000-5000">1千万円-5千万円</option>
+                    <option value="5000-10000">5千万円-1億円</option>
+                    <option value="10000+">1億円以上</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <Calendar className="inline w-4 h-4 mr-1" />
+                    申請期限
+                  </label>
+                  <select
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                    value={filters.applicationDeadline}
+                    onChange={(e) =>
+                      updateFilter("applicationDeadline", e.target.value)
+                    }
+                  >
+                    <option value="">指定なし</option>
+                    <option value="30days">30日以内</option>
+                    <option value="60days">60日以内</option>
+                    <option value="90days">90日以内</option>
+                    <option value="ongoing">通年募集</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* ソート設定とクリアボタン */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <label className="text-sm font-medium text-gray-700">
+                      並び順:
+                    </label>
+                    <select
+                      className="border border-gray-300 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500"
+                      value={filters.sortBy}
+                      onChange={(e) => updateFilter("sortBy", e.target.value)}
+                    >
+                      <option value="deadline">申請期限</option>
+                      <option value="maxAmount">補助上限額</option>
+                      <option value="score">マッチング度</option>
+                      <option value="created">登録日</option>
+                    </select>
+
+                    <select
+                      className="border border-gray-300 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500"
+                      value={filters.sortOrder}
+                      onChange={(e) =>
+                        updateFilter(
+                          "sortOrder",
+                          e.target.value as "asc" | "desc",
+                        )
+                      }
+                    >
+                      <option value="asc">昇順</option>
+                      <option value="desc">降順</option>
+                    </select>
+                  </div>
+                </div>
+
+                <button
+                  className="text-sm text-gray-600 hover:text-gray-800 underline"
+                  onClick={clearFilters}
+                >
+                  フィルターをクリア
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* 検索結果 */}
+        <div className="space-y-4">
+          <div className="flex justify-between items-center">
+            <h2 className="text-xl font-bold text-gray-900">
+              検索結果 ({totalCount}件)
+            </h2>
           </div>
-        )}
+
+          {isLoading ? (
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto" />
+              <p className="mt-2 text-gray-600">検索中...</p>
+            </div>
+          ) : results.length === 0 ? (
+            <div className="text-center py-12 bg-gray-50 rounded-xl">
+              <p className="text-gray-600">
+                条件に合う補助金が見つかりませんでした。
+              </p>
+              <p className="text-sm text-gray-500 mt-1">
+                検索条件を変更してお試しください。
+              </p>
+            </div>
+          ) : (
+            <div className="grid gap-6">
+              {results.map((result) => (
+                <div
+                  key={result.id}
+                  className="bg-white rounded-xl shadow-sm border p-6 hover:shadow-md transition-shadow"
+                >
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                        {result.name}
+                      </h3>
+                      <p className="text-sm text-gray-600 mb-2">
+                        {result.organization}
+                      </p>
+                      <p className="text-gray-700 leading-relaxed">
+                        {result.summary}
+                      </p>
+                    </div>
+
+                    {result.score && (
+                      <div className="ml-4 text-right">
+                        <div className="text-sm text-gray-500">マッチング度</div>
+                        <div
+                          className={`text-lg font-bold ${
+                            result.score >= 0.8
+                              ? "text-green-600"
+                              : result.score >= 0.6
+                                ? "text-blue-600"
+                                : "text-orange-600"
+                          }`}
+                        >
+                          {Math.round(result.score * 100)}%
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {result.categories.map((category) => (
+                      <span
+                        key={category}
+                        className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full"
+                      >
+                        {category}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="flex justify-between items-center text-sm text-gray-600">
+                    <div className="space-x-4">
+                      <span>上限額: {result.maxAmount}</span>
+                      <span>補助率: {result.subsidyRate}</span>
+                      <span>期限: {result.deadline}</span>
+                    </div>
+
+                    <div className="flex gap-2">
+                      <button className="px-4 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors">
+                        詳細を見る
+                      </button>
+                      <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        申請開始
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

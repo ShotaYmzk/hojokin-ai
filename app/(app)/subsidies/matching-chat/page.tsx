@@ -332,7 +332,7 @@ const MatchingChatPage: React.FC = () => {
     // 例: <FontAwesomeIcon icon={faPauseCircle} className="mr-2" />
     // またはHeroUIのアイコンを使う場合 <Button startContent={<PauseIcon />}>セッション中断</Button>
     // Tailwind CSSのクラス名はそのまま利用できます。
-    <div className="flex flex-col h-[calc(100vh-theme(spacing.16)-theme(spacing.12))] bg-gray-50 font-sans">
+    <div className="flex flex-col h-screen bg-gray-50 font-sans">
       {/* ヘッダー (このページ専用のヘッダー。共通レイアウトのヘッダーとは別) */}
       <header className="bg-white shadow-sm h-16 flex items-center px-6 sticky top-0 z-10">
         <div className="flex items-center justify-between w-full">

@@ -11,9 +11,8 @@ export default function HomePage() {
         <div className="max-w-4xl mx-auto text-center space-y-8">
           <div className="space-y-4">
             <h1 className={title({ size: "lg", class: "leading-tight" })}>
-              <span className={title({ color: "violet" })}>AI</span>があなたの
-              <br />
-              補助金・助成金申請を徹底サポート
+              <span className={title({ color: "violet", class: "text-10xl" })}>AI</span>があなたの
+              <span className="whitespace-nowrap">補助金・助成金申請を徹底サポート</span>
             </h1>
             <p className={subtitle({ class: "mt-6 max-w-2xl mx-auto" })}>
               複雑な補助金制度の検索から、面倒な申請書類のドラフト作成まで。
@@ -53,6 +52,7 @@ export default function HomePage() {
           <h2 className={title({ size: "md", class: "mb-8 text-center" })}>
             主な機能
           </h2>
+          
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-4">
             <div className="p-6 border border-default-200 rounded-xl hover:shadow-lg transition-shadow">
               <h3 className="text-xl font-semibold mb-3">簡単検索</h3>
