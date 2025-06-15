@@ -32,7 +32,5 @@ export const AppLogo = ({ className, size = 36 }: AppLogoProps) => (
         fillRule="evenodd"
       />
     </svg>
-    {/* ★修正点：<p>タグを<span>タグに変更しました */}
-    <span className="font-bold text-inherit">{siteConfig.name}</span>
   </Link>
 );
